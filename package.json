@@ -1,0 +1,40 @@
+{
+    "name": "kiwiwi",
+    "version": "0.1.0",
+    "description": "kiwiwi - private discord music bot",
+    "type": "module",
+    "main": "./index.js",
+    "scripts": {
+        "dev": "NODE_ENV=development nodemon --exec node ./index.js",
+        "build": "echo no build!",
+        "lint": "./node_modules/.bin/eslint ./src",
+        "start": "pm2 start ecosystem.config.* --env production",
+        "restart": "pm2 restart ecosystem.config.* --env production"
+    },
+    "imports": {
+        "#src/*": "./src/*",
+        "#utils/*": "./src/utils/*"
+    },
+    "repository": "",
+    "author": "DURUMI",
+    "license": "MIT",
+    "private": true,
+    "devDependencies": {
+        "eslint": "^8.2.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-plugin-prettier": "^5.1.3",
+        "prettier": "^3.3.2"
+    },
+    "dependencies": {
+        "@discordjs/voice": "^0.17.0",
+        "discord.js": "^14.15.3",
+        "dotenv": "^16.4.5",
+        "libsodium-wrappers": "^0.7.13",
+        "mariadb": "^3.3.1",
+        "sequelize": "^6.37.3",
+        "sodium": "^3.0.2",
+        "yt-search": "^2.11.1",
+        "ytdl-core": "^4.11.5"
+    }
+}
