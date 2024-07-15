@@ -37,6 +37,7 @@
 2. `BOT PERMISSIONS`은 다음 scope를 선택하세요:
     - Send Messages
     - Embed Links
+    - Read Message History
     - Use External Emojis
     - Add Reactions
     - Use Slash Commands
