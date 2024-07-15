@@ -3,15 +3,16 @@ import {
     AudioPlayerStatus,
     createAudioResource,
 } from '@discordjs/voice';
-// import ytdl from 'ytdl-core';
-import yt from '#src/yt.js';
+import logger from '#src/logger.js';
+import yt from '#src/musics/youtube.js';
 import {
     KiwiwiDisplay,
     baseStatusContent,
     basePlayerEmbed,
     basePlaylistContent,
+    baseButtonComponents,
     musicProgress,
-} from '#src/kiwiwiDisplay.js';
+} from '#src/classes/kiwiwiDisplay.js';
 import config from '#src/config.js';
 
 export class KiwiwiPlayer {
@@ -45,14 +46,18 @@ export class KiwiwiPlayer {
                 this.add(this.playlist[0]);
             }
 
-            this.next();
-            this.play();
+            if (!this.playlist[0]) {
+                this.sleep();
+            } else {
+                this.next();
+                this.play();
+            }
         });
 
         // error
         this.player.on('error', (e) => {
             // TODO: display: e.message
-            console.error(e);
+            logger.error(`KiwiwiPlayerError: ${e}`);
             this.next();
             this.play();
         });
@@ -63,7 +68,6 @@ export class KiwiwiPlayer {
             const ytInfo = await yt(music.link);
             return createAudioResource((await fetch(ytInfo.audio)).body);
         } catch (e) {
-            console.error(e);
             return false;
         }
     }
@@ -101,6 +105,9 @@ export class KiwiwiPlayer {
         // update display - playlist
         this.setPlaylistContent();
 
+        // update display - buttonComponents
+        this.display.buttonComponents = baseButtonComponents(true);
+
         // update display - progress
         this.display.statusContent = baseStatusContent(
             musicProgress(0, this.playlist[0].duration),
@@ -134,6 +141,14 @@ export class KiwiwiPlayer {
         this.display.status = KiwiwiDisplay.status.IDLE;
         clearInterval(this.updateSchedule);
         this.updateSchedule = null;
+        this.display.update();
+    }
+
+    sleep() {
+        this.player.stop();
+        this.display.status = KiwiwiDisplay.status.SLEEP;
+        clearInterval(this.updateSchedule);
+        this.updateSchedule = null;
         this.display.clear();
         this.display.update();
     }
@@ -144,6 +159,7 @@ export class KiwiwiPlayer {
 
             this.playstatus = 'PAUSED';
             this.setPlayerEmbed();
+            this.display.buttonComponents = baseButtonComponents(false);
             this.display.update();
         }
     }
@@ -154,6 +170,7 @@ export class KiwiwiPlayer {
 
             this.playstatus = 'PLAYING';
             this.setPlayerEmbed();
+            this.display.buttonComponents = baseButtonComponents(true);
             this.display.update();
         }
     }
@@ -167,6 +184,13 @@ export class KiwiwiPlayer {
         this.play();
     }
 
+    remove(index = this.playlist.length - 1) {
+        this.playlist.splice(index, 1);
+        this.setPlaylistContent();
+        this.setPlayerEmbed();
+        this.display.update();
+    }
+
     next() {
         this.playedlist.unshift(this.playlist[0]);
         if (this.playedlist.length > config.maxPlaylistBackup) {
@@ -175,12 +199,15 @@ export class KiwiwiPlayer {
         this.playlist.shift();
     }
 
-    back() {
+    async back() {
         if (this.playedlist.length === 0) return false;
         this.playlist.unshift(this.playedlist[0]);
         this.playedlist.shift();
 
+        this.playlist[0].resource = await this.getResource(this.playlist[0]);
+
         this.play();
+        return true;
     }
 
     shuffle() {

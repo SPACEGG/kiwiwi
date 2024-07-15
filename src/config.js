@@ -1,6 +1,10 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const packageJson = require('../package.json');
+
 export default {
     name: process.env.NODE_ENV !== 'production' ? 'kiwiwi-dev' : 'kiwiwi',
-    version: '0.1.0',
+    version: packageJson.version,
     kiwi: '🥝',
     kiwiGreen: 0x85b319,
     errorRed: 0xef5350,

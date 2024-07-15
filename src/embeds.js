@@ -10,6 +10,7 @@ export const errorEmbed = (message) => {
                 color: config.errorRed,
             },
         ],
+        components: [],
         ephemeral: true,
     };
 };
@@ -23,6 +24,7 @@ export const confirmEmbed = (message) => {
                 color: config.kiwiGreen,
             },
         ],
+        components: [],
         ephemeral: true,
     };
 };
@@ -36,6 +38,7 @@ export const warningEmbed = (message) => {
                 color: config.warnYellow,
             },
         ],
+        components: [],
         ephemeral: true,
     };
 };

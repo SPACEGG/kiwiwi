@@ -1,8 +1,13 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { errorEmbed, confirmEmbed } from '#src/embeds.js';
-import { voiceManagerQueue } from '#src/queue.js';
+import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
 import { checkHomeChannel } from '#src/utils.js';
 import config from '#src/config.js';
+
+/**
+ * /leave
+ *   + vm.destroy()
+ */
 
 export const data = new SlashCommandBuilder()
     .setName('leave')
@@ -14,16 +19,12 @@ export const execute = async (interaction) => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);
 
-    // check user's channel status
-    if (!interaction.member.voice.channel) {
-        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
-        return false;
-    }
     if (!(await checkHomeChannel(interaction))) {
         return false;
     }
 
     const vm = voiceManagerQueue[interaction.guild.id];
+
     // leave voice channel
     if (!vm) {
         await interaction.editReply(
@@ -31,6 +32,12 @@ export const execute = async (interaction) => {
         );
         return false;
     } else {
+        // check user's channel status
+        if (interaction.member.voice?.channel !== vm.voiceChannel) {
+            await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+            return false;
+        }
+
         vm.destroy();
         delete voiceManagerQueue[interaction.guild.id];
         await interaction.editReply(

@@ -1,7 +1,5 @@
-import { getYoutubeIdFromURL } from '#src/youtubeUtils.js';
-
 // code from https://github.com/fent/node-ytdl-core/issues/1289#srcissuecomment-2181891237
-const getInfo = async (videoId) => {
+const getRawInfo = async (videoId) => {
     // hard-coded from https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/youtube.py
     const apiKey = 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc';
 
@@ -55,16 +53,25 @@ const getThumbnail = (info) =>
         info.videoDetails.thumbnail.thumbnails.length - 1
     ].url;
 
+const getYoutubeIdFromURL = (urlString) => {
+    const url = new URL(urlString);
+    if (url.hostname === 'youtube.com' || url.hostname === 'www.youtube.com') {
+        return url.searchParams.get('v');
+    } else {
+        return url.pathname.substring(1);
+    }
+};
+
 export default async (link) => {
-    const info = await getInfo(getYoutubeIdFromURL(link));
-    if (info.playabilityStatus.status !== 'OK') {
-        throw info.playabilityStatus.reason;
+    const rawInfo = await getRawInfo(getYoutubeIdFromURL(link));
+    if (rawInfo.playabilityStatus.status !== 'OK') {
+        throw rawInfo.playabilityStatus.reason;
     }
     return {
-        info: info,
-        audio: getAudio(info),
-        title: info.videoDetails.title,
-        thumbnail: getThumbnail(info),
-        duration: info.videoDetails.lengthSeconds,
+        link,
+        audio: getAudio(rawInfo),
+        title: rawInfo.videoDetails.title,
+        thumbnail: getThumbnail(rawInfo),
+        duration: parseInt(rawInfo.videoDetails.lengthSeconds),
     };
 };

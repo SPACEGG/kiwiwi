@@ -50,3 +50,13 @@ export const checkHomeChannel = async (interaction) => {
     }
     return true;
 };
+
+export const checkHomeChannelSilence = async (interaction) => {
+    // check home channel
+    const home = await db.home.findOne({
+        where: { guild_id: interaction.guild.id },
+    });
+    if (!home) return false;
+    if (interaction.channel.id !== home.channel_id) return false;
+    return true;
+};

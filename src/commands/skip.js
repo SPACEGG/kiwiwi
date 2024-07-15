@@ -1,18 +1,15 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { checkHomeChannel } from '#src/utils.js';
-import { voiceManagerQueue } from '#src/queue.js';
+import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
 import { errorEmbed, confirmEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 /**
  * /skip [number]
  * - no number:
- *      + add link to playlist
+ *      + vm.kiwiwiPlayer.skip(1)
  * - has number:
- *      + vm 생성
- *      + vm connect
- *      + add link to playlist
- *      + play
+ *      + vm.kiwiwiPlayer.skip(number)
  */
 
 export const data = new SlashCommandBuilder()
@@ -29,11 +26,6 @@ export const execute = async (interaction) => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);
 
-    // check user's channel status
-    if (!interaction.member.voice.channel) {
-        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
-        return false;
-    }
     if (!(await checkHomeChannel(interaction))) return false;
 
     // check if vm exsits
@@ -45,9 +37,15 @@ export const execute = async (interaction) => {
         return false;
     }
 
+    // check user's channel status
+    if (interaction.member.voice?.channel !== vm.voiceChannel) {
+        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+        return false;
+    }
+
     // ------------------------------
 
-    const number = parseInt(interaction.options.getString('number')) || 1;
+    const number = parseInt(interaction.options?.getString('number')) || 1;
     if (number < 1) {
         await interaction.editReply(
             errorEmbed(`유효하지 않은 대기열 번호에요: ${number}`)

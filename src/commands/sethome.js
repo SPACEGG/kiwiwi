@@ -1,12 +1,29 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import logger from '#src/logger.js';
 import { checkEmbed, confirmEmbed, warningEmbed } from '#src/embeds.js';
 import {
     initKiwiwiDisplay,
     getKiwiwiDisplay,
     setKiwiwiDisplay,
-} from '#src/kiwiwiDisplay.js';
+} from '#src/queue/displayQueue.js';
 import config from '#src/config.js';
 import db from '#src/database.js';
+
+/**
+ * /sethome
+ *   + find home record from db
+ *   + checkEmbed(Y/N)
+ *   - Y:
+ *      + update record
+ *      + move/create kiwiwiDisplay
+ *      + confirmEmbed
+ *   - N:
+ *      + cancel
+ *      + warnigEmbed
+ *   - no input for interactionWaitingTimeout:
+ *      + cancel
+ *      + warnigEmbed
+ */
 
 const data = new SlashCommandBuilder()
     .setName('sethome')
@@ -17,7 +34,7 @@ const execute = async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
     setTimeout(() => {
         interaction.deleteReply();
-    }, config.autoDeleteTimeout);
+    }, config.autoDeleteTimeout + config.interactionWaitingTimeout);
 
     // find prev record
     const prevHome = await db.home.findOne({ where: { guild_id: interaction.guildId } });
@@ -36,7 +53,7 @@ const execute = async (interaction) => {
                 time: config.interactionWaitingTimeout,
             });
 
-            // update record & move kiwiwi player
+            // update record & move kiwiwi display
             if (confirmation.customId === 'yes') {
                 // move display msg
                 const display = await getKiwiwiDisplay(interaction.guild);
@@ -62,10 +79,10 @@ const execute = async (interaction) => {
                 return false;
             }
         } catch (e) {
+            logger.error(e);
             await interaction.editReply(
                 warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
             );
-            console.error(e);
             return false;
         }
     } else {
@@ -80,7 +97,7 @@ const execute = async (interaction) => {
                 time: 60_000,
             });
 
-            // create record && create kiwiwi player
+            // create record && create kiwiwi display
             if (confirmation.customId === 'yes') {
                 const display = await initKiwiwiDisplay(
                     interaction.guild,
@@ -103,7 +120,7 @@ const execute = async (interaction) => {
                 return false;
             }
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             await interaction.editReply(
                 warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
             );

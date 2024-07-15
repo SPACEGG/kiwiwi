@@ -6,10 +6,6 @@ const embed = {
     title: '키위위 도움말',
     fields: [
         {
-            name: '/help `command`',
-            value: '키위위 도움말을 보여줘요.',
-        },
-        {
             name: '/sethome',
             value: '**[관리자 명령]** 현재 채널을 키위위 홈으로 설정해요.',
         },
@@ -43,7 +39,7 @@ const embed = {
         },
         {
             name: '/loop `mode`',
-            value: '재생중인 음악 또는 대기열 전체를 반복해요.',
+            value: '음악 반복모드를 변경해요.',
         },
     ],
     footer: {

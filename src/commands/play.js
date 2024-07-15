@@ -1,33 +1,33 @@
 import { SlashCommandBuilder } from 'discord.js';
+import logger from '#src/logger.js';
 import { checkHomeChannel } from '#src/utils.js';
-import { VoiceManager } from '#src/voiceManager.js';
-import { voiceManagerQueue } from '#src/queue.js';
+import { VoiceManager } from '#src/classes/voiceManager.js';
+import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
 import { errorEmbed, confirmEmbed } from '#src/embeds.js';
-import { isURL } from '#src/utils.js';
-import {
-    isYoutubePlaylistURL,
-    getYoutubePlaylist,
-    getYoutubeInfo,
-    makeYoutubeURLFromId,
-} from '#src/youtubeUtils.js';
+import getMusics from '#src/musics/getMusics.js';
 import config from '#src/config.js';
 
 /**
  * /play [link]
  * - VoiceManager exsits:
- *      + add link to playlist
+ *      + get music info elements
+ *      + vm.kiwiwiPlayer.add(elements)
  * - VoiceManager not exsits:
- *      + vm 생성
- *      + vm connect
- *      + add link to playlist
- *      + play
+ *      + get music info elements
+ *      + create vm
+ *      + vm.connect()
+ *      + vm.kiwiwiPlayer.add(elements)
+ *      + vm.kiwiwiPlayer.play()
  */
 
 export const data = new SlashCommandBuilder()
     .setName('play')
     .setDescription('음악을 대기열에 추가해요.')
     .addStringOption((option) =>
-        option.setName('link').setDescription('음악 링크 url').setRequired(true)
+        option
+            .setName('keyword')
+            .setDescription('음악 링크 또는 검색 키워드')
+            .setRequired(true)
     );
 
 export const execute = async (interaction) => {
@@ -37,45 +37,31 @@ export const execute = async (interaction) => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);
 
-    // check user's channel status
-    if (!interaction.member.voice.channel) {
-        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
-        return false;
-    }
     if (!(await checkHomeChannel(interaction))) return false;
 
-    const link = interaction.options.getString('link');
-    if (!isURL(link)) {
-        await interaction.editReply(errorEmbed(`유효하지 않은 링크에요: \`${link}\``));
-        return;
+    // check user's channel status
+    if (
+        !interaction.member.voice.channel ||
+        (voiceManagerQueue[interaction.guild.id] &&
+            interaction.member.voice.channel !==
+                voiceManagerQueue[interaction.guild.id].voiceChannel)
+    ) {
+        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+        return false;
     }
 
     // get music info
     let elements = [];
-    if (isYoutubePlaylistURL(link)) {
-        const ytPlaylist = await getYoutubePlaylist(link);
-        elements = ytPlaylist.videos.map((i) => {
-            return {
-                link: makeYoutubeURLFromId(i.videoId),
-                title: i.title,
-                duration: i.duration.seconds,
-                thumbnail: i.thumbnail,
-                userId: interaction.user.id,
-                channelId: interaction.member.voice.channel.id,
-            };
-        });
-    } else {
-        const ytInfo = await getYoutubeInfo(link);
-        elements = [
-            {
-                link: link,
-                title: ytInfo.title,
-                duration: ytInfo.duration.seconds,
-                thumbnail: ytInfo.thumbnail,
-                userId: interaction.user.id,
-                channelId: interaction.member.voice.channel.id,
-            },
-        ];
+    const keyword = interaction.options?.getString('keyword');
+
+    try {
+        elements = await getMusics(keyword, interaction);
+    } catch (e) {
+        logger.error(`MusicKeywordError: ${e}`);
+        await interaction.editReply(
+            errorEmbed(`유효하지 않은 입력이에요: \`${keyword}\``)
+        );
+        return;
     }
 
     // connect or add

@@ -1,6 +1,7 @@
 import { REST, Routes, Collection } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
+import logger from '#src/logger.js';
 
 let token = '';
 if (process.env.NODE_ENV !== 'production') {
@@ -27,8 +28,8 @@ for (const file of commandFiles) {
         commands.push(command.data.toJSON());
         commandCollections.set(command.data.name, command);
     } else {
-        console.log(
-            `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        logger.warn(
+            `The command at ${filePath} is missing a required "data" or "execute" property.`
         );
     }
 }
@@ -37,12 +38,12 @@ export { commandCollections };
 
 const rest = new REST({ version: '10' }).setToken(token);
 try {
-    console.log(`Started refreshing ${commands.length} application (/) commands.`);
+    logger.info(`Started refreshing ${commands.length} application (/) commands.`);
     const data = await rest.put(Routes.applicationCommands(clientId), {
         body: commands,
     });
 
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-} catch (error) {
-    console.error(error);
+    logger.info(`Successfully reloaded ${data.length} application (/) commands.`);
+} catch (e) {
+    logger.error(`CommandRESTError${e}`);
 }

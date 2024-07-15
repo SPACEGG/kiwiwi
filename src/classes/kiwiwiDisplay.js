@@ -1,58 +1,6 @@
-import db from '#src/database.js';
-import { displayQueue } from '#src/queue.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { secToString } from '#src/utils.js';
 import config from '#src/config.js';
-
-export const initKiwiwiDisplay = async (guild, channel) => {
-    const display = new KiwiwiDisplay(channel);
-    await display.initMessage();
-
-    displayQueue[guild.id] = display;
-
-    await db.home.create({
-        guild_id: guild.id,
-        channel_id: channel.id,
-        kiwiwi_player_id: display.message.id,
-    });
-    return display;
-};
-
-export const getKiwiwiDisplay = async (guild) => {
-    if (displayQueue[guild.id]) return displayQueue[guild.id];
-
-    const home = await db.home.findOne({ where: { guild_id: guild.id } });
-    if (!home) throw 'Kiwiwi Home Channel is not Initialized!';
-    const homeChannel = await guild.channels.fetch(home.channel_id);
-    try {
-        const msg = await homeChannel.messages.fetch(home.kiwiwi_player_id);
-        const display = new KiwiwiDisplay(homeChannel, msg);
-        displayQueue[guild.id] = display;
-        return display;
-    } catch (e) {
-        console.log(`message not found: ${home.kiwiwi_player_id}\n\t${e}`);
-        const display = new KiwiwiDisplay(homeChannel);
-        await display.initMessage();
-        await db.home.update(
-            {
-                kiwiwi_player_id: display.message.id,
-            },
-            { where: { guild_id: guild.id } }
-        );
-        displayQueue[guild.id] = display;
-        return display;
-    }
-};
-
-export const setKiwiwiDisplay = async (guild, display) => {
-    const home = await db.home.findOne({ where: { guild_id: guild.id } });
-
-    if (home.channel_id !== display.channel.id) {
-        throw 'Invalid display channel';
-    }
-    displayQueue[guild.id] = display;
-};
-
-// --------------------------------------------------
 
 export const baseStatusContent = (
     text,
@@ -118,6 +66,42 @@ export const basePlayerEmbed = (info) => {
     };
 };
 
+export const baseButtonComponents = (isPlaying) => {
+    const back = new ButtonBuilder()
+        .setCustomId('back')
+        .setLabel('⇦')
+        .setStyle(ButtonStyle.Primary);
+    const playPause = isPlaying
+        ? new ButtonBuilder()
+              .setCustomId('pause')
+              .setLabel('◫')
+              .setStyle(ButtonStyle.Primary)
+        : new ButtonBuilder()
+              .setCustomId('resume')
+              .setLabel('▶')
+              .setStyle(ButtonStyle.Primary);
+    const next = new ButtonBuilder()
+        .setCustomId('skip')
+        .setLabel('⇨')
+        .setStyle(ButtonStyle.Primary);
+    const leave = new ButtonBuilder()
+        .setCustomId('leave')
+        .setLabel('■')
+        .setStyle(ButtonStyle.Danger);
+    const shuffle = new ButtonBuilder()
+        .setCustomId('shuffle')
+        .setLabel('⇌')
+        .setStyle(ButtonStyle.Secondary);
+    const loop = new ButtonBuilder()
+        .setCustomId('loop')
+        .setLabel('↻')
+        .setStyle(ButtonStyle.Secondary);
+    const row1 = new ActionRowBuilder().addComponents(back, playPause, next);
+    const row2 = new ActionRowBuilder().addComponents(leave, shuffle, loop);
+
+    return [row1, row2];
+};
+
 export const musicProgress = (current, length) => {
     const progress = Math.ceil((current / length) * 25);
     return `${secToString(current).padEnd(5, ' ')}|\u001b[0;40;37m${'·'.repeat(
@@ -133,7 +117,7 @@ export class KiwiwiDisplay {
     static status = {
         IDLE: { emoji: '🥝', text: '  Waiting for music links...' },
         PLAYING: { emoji: '💚', text: '' },
-        SLEEP: { emoji: '💤', text: '  kiwiwi is sleeping...' },
+        SLEEP: { emoji: '💤', text: '  Leaving in 5 minutes...' },
         UNHEALTHY: { emoji: '💥', text: '  kiwiwi is not available...' },
     };
 

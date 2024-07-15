@@ -1,5 +1,6 @@
 import { Events, ActivityType, PresenceUpdateStatus } from 'discord.js';
 import config from '#src/config.js';
+import logger from '#src/logger.js';
 
 export const name = Events.ClientReady;
 export const once = true;
@@ -13,5 +14,5 @@ export const execute = (client) => {
         ],
         status: PresenceUpdateStatus.Online,
     });
-    console.log(`Ready! Logged in as ${client.user.tag}`);
+    logger.info(`Ready! Logged in as ${client.user.tag}`);
 };

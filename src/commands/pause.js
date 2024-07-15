@@ -1,8 +1,13 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { checkHomeChannel } from '#src/utils.js';
 import { errorEmbed, confirmEmbed } from '#src/embeds.js';
-import { voiceManagerQueue } from '#src/queue.js';
+import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
 import config from '#src/config.js';
+
+/**
+ * /pause
+ *   + vm.kiwiwiPlayer.pause()
+ */
 
 export const data = new SlashCommandBuilder()
     .setName('pause')
@@ -14,11 +19,6 @@ export const execute = async (interaction) => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);
 
-    // check user's channel status
-    if (!interaction.member.voice.channel) {
-        interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
-        return false;
-    }
     if (!(await checkHomeChannel(interaction))) return false;
 
     // check if vm exsits
@@ -30,9 +30,15 @@ export const execute = async (interaction) => {
         return false;
     }
 
+    // check user's channel status
+    if (interaction.member.voice?.channel !== vm.voiceChannel) {
+        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+        return false;
+    }
+
     // ------------------------------
 
     vm.kiwiwiPlayer.pause();
-    interaction.editReply(confirmEmbed('음악을 일시정지해요.'));
+    interaction.editReply(confirmEmbed('음악을 일시정지했어요.'));
     return true;
 };

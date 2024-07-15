@@ -5,13 +5,17 @@ import { errorEmbed, confirmEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 /**
- * /back
- *   + vm.kiwiwiPlayer.back()
+ * /remove [number]
+ *   + vm.kiwiwiPlayer.remove(number)
  */
 
 export const data = new SlashCommandBuilder()
-    .setName('back')
-    .setDescription('이전 재생목록 음악을 재생해요.');
+    .setName('remove')
+    .setDescription('대기열 마지막 음악 또는 특정 대기열 번호를 제외해요.')
+    .addStringOption((option) =>
+        option.setName('number').setDescription('대기열 번호').setRequired(false)
+    );
+
 export const execute = async (interaction) => {
     // deferReply
     await interaction.deferReply({ ephemeral: true });
@@ -38,8 +42,16 @@ export const execute = async (interaction) => {
 
     // ------------------------------
 
-    (await vm.kiwiwiPlayer.back())
-        ? interaction.editReply(confirmEmbed('이전 음악을 다시 재생해요.'))
-        : interaction.editReply(errorEmbed('이전 음악이 존재하지 않아요.'));
+    const number = parseInt(interaction.options?.getString('number')) || 0;
+
+    // skip
+    if (number < 1) {
+        vm.kiwiwiPlayer.remove();
+        await interaction.editReply(confirmEmbed('마지막 음악을 제외했어요.'));
+    } else {
+        vm.kiwiwiPlayer.remove(number);
+        await interaction.editReply(confirmEmbed(`${number}번째 음악을 제외했어요.`));
+    }
+
     return true;
 };
