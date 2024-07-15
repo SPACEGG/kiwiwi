@@ -10,7 +10,6 @@ export const execute = async (interaction) => {
 
     // check if interaction is created at home channel
     if (!(await checkHomeChannelSilence(interaction))) {
-        console.log('no');
         return false;
     }
 

@@ -134,3 +134,6 @@ nodemon.json
 
 # database
 db/
+
+# vscode
+./vscode/
