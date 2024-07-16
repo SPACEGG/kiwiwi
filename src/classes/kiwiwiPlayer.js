@@ -46,12 +46,8 @@ export class KiwiwiPlayer {
                 this.add(this.playlist[0]);
             }
 
-            if (!this.playlist[0]) {
-                this.sleep();
-            } else {
-                this.next();
-                this.play();
-            }
+            this.next();
+            this.play();
         });
 
         // error
@@ -96,7 +92,12 @@ export class KiwiwiPlayer {
             return false;
         }
         // play resource
-        this.player.play(this.resource);
+        try {
+            this.player.play(this.resource);
+        } catch {
+            this.player.emit('error', `Resource play failed: ${this.playlist[0].link}`);
+            return false;
+        }
         // get next music resource
         if (this.playlist[1]) {
             this.playlist[1].resource = await this.getResource(this.playlist[1]);
@@ -141,6 +142,7 @@ export class KiwiwiPlayer {
         this.display.status = KiwiwiDisplay.status.IDLE;
         clearInterval(this.updateSchedule);
         this.updateSchedule = null;
+        this.display.clear();
         this.display.update();
     }
 

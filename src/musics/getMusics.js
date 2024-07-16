@@ -1,4 +1,4 @@
-// import { getMusicInputType, MUSIC_INPUT_TYPE } from '#src/utils.js';
+import logger from '#src/logger.js';
 import youtube from '#src/musics/youtube.js';
 import youtubePlaylist from '#src/musics/youtubePlaylist.js';
 import youtubeSearch from '#src/musics/youtubeSearch.js';
@@ -47,7 +47,8 @@ export default async (keyword, channelInput) => {
         }
         case MUSIC_INPUT_TYPE.YOUTUBE_PLAYLIST: {
             const ytPlaylist = await youtubePlaylist(keyword);
-            return await ytPlaylist.map((i) => {
+            logger.warn(ytPlaylist);
+            return ytPlaylist.map((i) => {
                 return {
                     ...i,
                     userId,

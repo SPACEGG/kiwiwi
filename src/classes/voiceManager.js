@@ -1,4 +1,4 @@
-import { once } from 'events';
+import { once, EventEmitter } from 'events';
 import { joinVoiceChannel, VoiceConnectionStatus, entersState } from '@discordjs/voice';
 import { KiwiwiPlayer } from '#src/classes/kiwiwiPlayer.js';
 import { getKiwiwiDisplay } from '#src/queue/displayQueue.js';
@@ -9,6 +9,8 @@ export class VoiceManager {
         this.connection = null;
         this.ready = false;
         this.kiwiwiPlayer = null;
+        this.event = new EventEmitter();
+        this.connected = false;
     }
 
     initConnection() {
@@ -41,9 +43,16 @@ export class VoiceManager {
                 this.kiwiwiPlayer = new KiwiwiPlayer(this.voiceChannel.guild, res);
                 this.ready = true;
                 this.connection.subscribe(this.kiwiwiPlayer.player);
+                this.event.emit('connected');
+                this.connected = true;
                 resolve();
             });
         });
+    }
+
+    async waitForConnect() {
+        if (this.connected) return;
+        return once(this.event, 'connected');
     }
 
     destroy() {

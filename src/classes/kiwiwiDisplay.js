@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { secToString } from '#src/utils.js';
 import config from '#src/config.js';
+import logger from '#src/logger.js';
 
 export const baseStatusContent = (
     text,
@@ -139,6 +140,11 @@ export class KiwiwiDisplay {
     }
 
     async initMessage() {
+        try {
+            await this.message.delete();
+        } catch (e) {
+            /* empty */
+        }
         this.message = await this.channel.send({
             content:
                 '```ansi\n\u001b[0;32m' +
@@ -152,21 +158,32 @@ export class KiwiwiDisplay {
     }
 
     async moveChannel(newChannel) {
-        this.message.delete();
+        try {
+            await this.message.delete();
+        } catch (e) {
+            /* empty */
+        }
         this.channel = newChannel;
         await this.initMessage();
     }
 
-    update() {
-        this.message.edit({
-            content:
-                '```ansi\n\u001b[0;32m' +
-                this.statusContent +
-                '\n' +
-                this.playlistContent +
-                '```',
-            embeds: this.playerEmbeds,
-            components: this.buttonComponents,
-        });
+    async update() {
+        try {
+            await this.message.edit({
+                content:
+                    '```ansi\n\u001b[0;32m' +
+                    this.statusContent +
+                    '\n' +
+                    this.playlistContent +
+                    '```',
+                embeds: this.playerEmbeds,
+                components: this.buttonComponents,
+            });
+        } catch (e) {
+            if (e.code === 10008) {
+                logger.warn('KiwiwiDisplay not found - send new display...');
+                await this.initMessage();
+            }
+        }
     }
 }

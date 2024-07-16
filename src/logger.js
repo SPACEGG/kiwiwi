@@ -10,6 +10,7 @@ const logFormat = printf((info) => {
     return `[${info.timestamp}] [kiwiwi ${info.level}] ${info.message}`;
 });
 
+const isDev = process.env.NODE_ENV !== 'production' ? 'dev_' : '';
 const logger = winston.createLogger({
     format: combine(
         timestamp({
@@ -22,7 +23,7 @@ const logger = winston.createLogger({
             level: 'info',
             datePattern: 'YYYY-MM-DD',
             dirname: logDir,
-            filename: `%DATE%.log`,
+            filename: `${isDev}%DATE%.log`,
             maxFiles: 30, // 30 days
             zippedArchive: true,
         }),
@@ -30,7 +31,7 @@ const logger = winston.createLogger({
             level: 'warn',
             datePattern: 'YYYY-MM-DD',
             dirname: logDir + '/warn',
-            filename: `%DATE%.warn.log`,
+            filename: `${isDev}%DATE%.warn.log`,
             maxFiles: 30,
             zippedArchive: true,
         }),
@@ -38,7 +39,7 @@ const logger = winston.createLogger({
             level: 'error',
             datePattern: 'YYYY-MM-DD',
             dirname: logDir + '/error',
-            filename: `%DATE%.error.log`,
+            filename: `${isDev}%DATE%.error.log`,
             maxFiles: 30,
             zippedArchive: true,
         }),

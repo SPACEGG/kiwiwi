@@ -73,6 +73,7 @@ export const execute = async (interaction) => {
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {
+        await vm.waitForConnect();
         vm.kiwiwiPlayer.add(elements);
     }
 
