@@ -57,17 +57,21 @@ const execute = async (interaction) => {
             if (confirmation.customId === 'yes') {
                 // move display msg
                 const display = await getKiwiwiDisplay(interaction.guild);
-                await display.moveChannel(interaction.channel);
-                // update record
-                await db.home.update(
-                    {
-                        channel_id: interaction.channelId,
-                        kiwiwi_player_id: display.message.id,
-                    },
-                    { where: { guild_id: interaction.guildId } }
-                );
-                // update to queue
-                await setKiwiwiDisplay(interaction.guild, display);
+                if (!display) {
+                    await initKiwiwiDisplay(interaction.guild, interaction.channel);
+                } else {
+                    await display.moveChannel(interaction.channel);
+                    // update record
+                    await db.home.update(
+                        {
+                            channel_id: interaction.channelId,
+                            kiwiwi_player_id: display.message.id,
+                        },
+                        { where: { guild_id: interaction.guildId } }
+                    );
+                    // update to queue
+                    await setKiwiwiDisplay(interaction.guild, display);
+                }
                 await confirmation.update(
                     confirmEmbed(
                         `키위위 홈 채널을 <#${interaction.channelId}>(으)로 변경했어요!`
@@ -79,10 +83,13 @@ const execute = async (interaction) => {
                 return false;
             }
         } catch (e) {
-            logger.error(e);
-            await interaction.editReply(
-                warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
-            );
+            if (e.name === 'InteractionCollectorError') {
+                await interaction.editReply(
+                    warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
+                );
+            } else {
+                logger.error(`SetHomeError: ${e}`);
+            }
             return false;
         }
     } else {
@@ -120,10 +127,13 @@ const execute = async (interaction) => {
                 return false;
             }
         } catch (e) {
-            logger.error(e);
-            await interaction.editReply(
-                warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
-            );
+            if (e.name === 'InteractionCollectorError') {
+                await interaction.editReply(
+                    warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
+                );
+            } else {
+                logger.error(`SetHomeError: ${e}`);
+            }
             return false;
         }
     }
