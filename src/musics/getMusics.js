@@ -47,7 +47,6 @@ export default async (keyword, channelInput) => {
         }
         case MUSIC_INPUT_TYPE.YOUTUBE_PLAYLIST: {
             const ytPlaylist = await youtubePlaylist(keyword);
-            logger.warn(ytPlaylist);
             return ytPlaylist.map((i) => {
                 return {
                     ...i,
