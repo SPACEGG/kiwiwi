@@ -67,9 +67,10 @@ export default async (link) => {
     if (rawInfo.playabilityStatus.status !== 'OK') {
         throw rawInfo.playabilityStatus.reason;
     }
+    const audioStream = (await fetch(getAudio(rawInfo))).body;
     return {
         link,
-        audio: getAudio(rawInfo),
+        audio: audioStream,
         title: rawInfo.videoDetails.title,
         thumbnail: getThumbnail(rawInfo),
         duration: parseInt(rawInfo.videoDetails.lengthSeconds),
