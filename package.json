@@ -1,6 +1,6 @@
 {
     "name": "kiwiwi",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "kiwiwi - private discord music bot",
     "type": "module",
     "main": "./index.js",

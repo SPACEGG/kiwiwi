@@ -22,8 +22,8 @@ const getMusicInputType = (input) => {
     const spotifyPattern = /https?:\/\/open\.spotify\.com\/track(\/.*)?/;
     const spotifyPlaylistPattern =
         /https?:\/\/open\.spotify\.com\/(playlist|album)(\/.*)?/;
-    const soundcloudPattern = /https?:\/\/([a-zA-Z0-9-]+\.)*soundcloud\.com\/\w+\/\w+/;
-
+    const soundcloudPattern =
+        /https?:\/\/([a-zA-Z0-9-]+\.)*soundcloud\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+/;
     if (input.match(youtubePattern)) return MUSIC_INPUT_TYPE.YOUTUBE;
     if (input.match(youtubePlaylistPattern)) return MUSIC_INPUT_TYPE.YOUTUBE_PLAYLIST;
     if (input.match(spotifyPattern)) return MUSIC_INPUT_TYPE.SPOTIFY;
