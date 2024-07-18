@@ -61,8 +61,9 @@ export class KiwiwiPlayer {
 
     async getResource(music) {
         try {
-            const ytInfo = await yt(music.link);
-            return createAudioResource((await fetch(ytInfo.audio)).body);
+            // const ytInfo = await yt(music.link);
+            // return createAudioResource((await fetch(ytInfo.audio)).body);
+            return createAudioResource(music.audio);
         } catch (e) {
             return false;
         }

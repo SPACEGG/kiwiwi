@@ -2,6 +2,7 @@ import logger from '#src/logger.js';
 import youtube from '#src/musics/youtube.js';
 import youtubePlaylist from '#src/musics/youtubePlaylist.js';
 import youtubeSearch from '#src/musics/youtubeSearch.js';
+import soundcloud from './soundcloud.js';
 
 const MUSIC_INPUT_TYPE = {
     KEYWORD: 'keyword',
@@ -54,6 +55,16 @@ export default async (keyword, channelInput) => {
                     channelId: channelInput.member.voice.channel.id,
                 };
             });
+        }
+        case MUSIC_INPUT_TYPE.SOUNDCLOUD: {
+            const scInfo = await soundcloud(keyword);
+            return [
+                {
+                    ...scInfo,
+                    userId,
+                    channelId: channelInput.member.voice.channel.id,
+                },
+            ];
         }
 
         // MUSIC_INPUT_TYPE.KEYWORD
