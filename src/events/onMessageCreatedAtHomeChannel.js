@@ -47,6 +47,16 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         return false;
     }
 
+    // clear messages after kiwiwidisplay
+    const trashMessages = await message.channel.messages.fetch({
+        limit: 50,
+        before: message.id,
+    });
+    await trashMessages
+        .filter((i) => i.id !== home.kiwiwi_player_id)
+        .map((i) => i.delete());
+
+    // get music by keyword
     const keyword = message.content;
     let elements = [];
 
@@ -69,6 +79,10 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         vm = new VoiceManager(message.member.voice.channel);
         voiceManagerQueue[message.guild.id] = vm;
         await vm.connect();
+        vm.kiwiwiPlayer.add(elements);
+        vm.kiwiwiPlayer.play();
+    } else if (vm.destroyed) {
+        await vm.reconnect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {

@@ -118,7 +118,7 @@ export class KiwiwiDisplay {
     static status = {
         IDLE: { emoji: '🥝', text: '  Waiting for music links...' },
         PLAYING: { emoji: '💚', text: '' },
-        SLEEP: { emoji: '💤', text: '  Leaving in 5 minutes...' },
+        SLEEP: { emoji: '💤', text: '  kiwiwi is sleeping...' },
         UNHEALTHY: { emoji: '💥', text: '  kiwiwi is not available...' },
     };
 

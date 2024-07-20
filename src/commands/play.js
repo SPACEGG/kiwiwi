@@ -72,6 +72,10 @@ export const execute = async (interaction) => {
         await vm.connect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
+    } else if (vm.destroyed) {
+        await vm.reconnect();
+        vm.kiwiwiPlayer.add(elements);
+        vm.kiwiwiPlayer.play();
     } else {
         await vm.waitForConnect();
         vm.kiwiwiPlayer.add(elements);

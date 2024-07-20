@@ -4,7 +4,6 @@ import {
     createAudioResource,
 } from '@discordjs/voice';
 import logger from '#src/logger.js';
-import yt from '#src/musics/youtube.js';
 import {
     KiwiwiDisplay,
     baseStatusContent,
@@ -28,8 +27,10 @@ export class KiwiwiPlayer {
         this.guild = guild;
         this.display = display;
         this.resource = undefined;
+        this.nextResource = undefined;
         this.playMode = KiwiwiPlayer.repeatMode.NONE;
         this.playstatus = 'IDLE';
+        this.vm = undefined;
 
         this.initPlayer();
     }
@@ -59,18 +60,22 @@ export class KiwiwiPlayer {
         });
     }
 
+    reload() {
+        this.player = createAudioPlayer();
+        this.initPlayer();
+    }
+
     async getResource(music) {
         try {
-            // const ytInfo = await yt(music.link);
-            // return createAudioResource((await fetch(ytInfo.audio)).body);
-            return createAudioResource(music.audio);
+            const stream = await music.audio();
+            return createAudioResource(stream);
         } catch (e) {
             return false;
         }
     }
 
-    add(links) {
-        this.playlist.push(...links);
+    add(musics) {
+        this.playlist.push(...musics);
 
         this.setPlaylistContent();
         this.setPlayerEmbed();
@@ -80,7 +85,7 @@ export class KiwiwiPlayer {
     async play() {
         // if playlist empty
         if (!this.playlist[0]) {
-            this.stop();
+            this.sleep();
             return false;
         }
 
@@ -149,11 +154,14 @@ export class KiwiwiPlayer {
 
     sleep() {
         this.player.stop();
+        this.playlist = [];
         this.display.status = KiwiwiDisplay.status.SLEEP;
         clearInterval(this.updateSchedule);
         this.updateSchedule = null;
         this.display.clear();
+        this.setPlaylistContent();
         this.display.update();
+        this.vm.close();
     }
 
     pause() {
@@ -245,7 +253,7 @@ export class KiwiwiPlayer {
             .slice(0, 3)
             .reverse()
             .map((i) => i.title);
-        const current = this.playlist[0].title;
+        const current = this.playlist[0]?.title ?? '';
         const next = this.playlist.slice(1, 10).map((i) => i.title);
         this.display.playlistContent = basePlaylistContent(prev, current, next);
     }
