@@ -82,7 +82,8 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else if (vm.destroyed) {
-        await vm.reconnect();
+        // FIXME: should be reconnect
+        await vm.connect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {
