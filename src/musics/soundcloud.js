@@ -7,7 +7,7 @@ export default async (link) => {
 
     return {
         link,
-        audio: async () => await scdl.download(link),
+        audio: await scdl.download(link),
         title: rawInfo.title,
         thumbnail: rawInfo.artwork_url,
         duration: Math.round(rawInfo.duration / 1000),

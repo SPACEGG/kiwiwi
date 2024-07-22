@@ -186,4 +186,11 @@ export class KiwiwiDisplay {
             }
         }
     }
+
+    async sendMessage(msgContent) {
+        const msg = await this.channel.send(msgContent);
+        setTimeout(() => {
+            msg.delete();
+        }, config.autoDeleteTimeout);
+    }
 }

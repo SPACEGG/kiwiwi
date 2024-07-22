@@ -22,12 +22,10 @@ export const execute = async (message) => {
     // auto delete message
     setTimeout(() => {
         message.delete().catch(() => {
-            message
-                .reply(
-                    errorEmbed(`${config.name}가 메시지 관리 권한을 가지고 있지 않아 메시지를 자동 삭제할 수 없어요!
+            message.reply(
+                errorEmbed(`${config.name}가 메시지 관리 권한을 가지고 있지 않아 메시지를 자동 삭제할 수 없어요!
 ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가질 수 있도록 서버 관리자에게 요청해주세요.`)
-                )
-                .catch(() => {});
+            );
         });
     }, config.autoDeleteTimeout);
 
@@ -46,15 +44,6 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         }, config.autoDeleteTimeout);
         return false;
     }
-
-    // clear messages after kiwiwidisplay
-    const trashMessages = await message.channel.messages.fetch({
-        limit: 50,
-        before: message.id,
-    });
-    await trashMessages
-        .filter((i) => i.id !== home.kiwiwi_player_id)
-        .map((i) => i.delete());
 
     // get music by keyword
     const keyword = message.content;
