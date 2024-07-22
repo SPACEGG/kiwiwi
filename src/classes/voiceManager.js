@@ -11,6 +11,7 @@ export class VoiceManager {
         this.kiwiwiPlayer = null;
         this.event = new EventEmitter();
         this.connected = false;
+        this.destroyed = false;
     }
 
     initConnection() {
@@ -41,10 +42,12 @@ export class VoiceManager {
         return new Promise((resolve) => {
             getKiwiwiDisplay(this.voiceChannel.guild).then((res) => {
                 this.kiwiwiPlayer = new KiwiwiPlayer(this.voiceChannel.guild, res);
+                this.kiwiwiPlayer.vm = this;
                 this.ready = true;
                 this.connection.subscribe(this.kiwiwiPlayer.player);
-                this.event.emit('connected');
                 this.connected = true;
+                this.destroyed = false;
+                this.event.emit('connected');
                 resolve();
             });
         });
@@ -55,9 +58,37 @@ export class VoiceManager {
         return once(this.event, 'connected');
     }
 
+    async reconnect() {
+        this.connection = joinVoiceChannel({
+            channelId: this.voiceChannel.id,
+            guildId: this.voiceChannel.guild.id,
+            adapterCreator: this.voiceChannel.guild.voiceAdapterCreator,
+        });
+        await this.initConnection();
+        return new Promise((resolve) => {
+            getKiwiwiDisplay(this.voiceChannel.guild).then(() => {
+                this.ready = true;
+                this.kiwiwiPlayer.reload();
+                this.connection.subscribe(this.kiwiwiPlayer.player);
+                this.connected = true;
+                this.destroyed = false;
+                this.event.emit('connected');
+                resolve();
+            });
+        });
+    }
+
     destroy() {
         this.kiwiwiPlayer.stop();
         this.kiwiwiPlayer.clear();
         this.connection.destroy();
+        this.destroyed = true;
+        this.connected = false;
+    }
+
+    close() {
+        this.connection.destroy();
+        this.destroyed = true;
+        this.connected = false;
     }
 }

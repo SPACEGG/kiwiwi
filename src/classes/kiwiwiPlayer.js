@@ -4,7 +4,6 @@ import {
     createAudioResource,
 } from '@discordjs/voice';
 import logger from '#src/logger.js';
-import yt from '#src/musics/youtube.js';
 import {
     KiwiwiDisplay,
     baseStatusContent,
@@ -13,6 +12,7 @@ import {
     baseButtonComponents,
     musicProgress,
 } from '#src/classes/kiwiwiDisplay.js';
+import { errorEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 export class KiwiwiPlayer {
@@ -28,8 +28,10 @@ export class KiwiwiPlayer {
         this.guild = guild;
         this.display = display;
         this.resource = undefined;
+        this.nextResource = undefined;
         this.playMode = KiwiwiPlayer.repeatMode.NONE;
         this.playstatus = 'IDLE';
+        this.vm = undefined;
 
         this.initPlayer();
     }
@@ -46,31 +48,40 @@ export class KiwiwiPlayer {
                 this.add(this.playlist[0]);
             }
 
+            this.resetSchedule();
             this.next();
             this.play();
         });
 
         // error
         this.player.on('error', (e) => {
-            // TODO: display: e.message
             logger.error(`KiwiwiPlayerError: ${e}`);
+            this.display.sendMessage(
+                errorEmbed(
+                    `재생 중 에러가 발생하여 다음 음악으로 넘겼어요:\nKiwiwiPlayerError: ${e}`
+                )
+            );
             this.next();
             this.play();
         });
     }
 
+    reload() {
+        this.player = createAudioPlayer();
+        this.initPlayer();
+    }
+
     async getResource(music) {
         try {
-            // const ytInfo = await yt(music.link);
-            // return createAudioResource((await fetch(ytInfo.audio)).body);
-            return createAudioResource(music.audio);
+            const stream = await music.audio;
+            return createAudioResource(stream);
         } catch (e) {
             return false;
         }
     }
 
-    add(links) {
-        this.playlist.push(...links);
+    add(musics) {
+        this.playlist.push(...musics);
 
         this.setPlaylistContent();
         this.setPlayerEmbed();
@@ -80,7 +91,7 @@ export class KiwiwiPlayer {
     async play() {
         // if playlist empty
         if (!this.playlist[0]) {
-            this.stop();
+            this.sleep();
             return false;
         }
 
@@ -123,43 +134,34 @@ export class KiwiwiPlayer {
 
         this.display.update();
 
-        this.updateSchedule =
-            this.updateSchedule ??
-            setInterval(() => {
-                this.display.statusContent = baseStatusContent(
-                    musicProgress(
-                        Math.round(this.resource.playbackDuration / 1000),
-                        this.playlist[0].duration
-                    ),
-                    KiwiwiDisplay.status.PLAYING.emoji
-                );
-                this.display.update();
-            }, config.scheduleDuration);
-        return true;
+        // set updateSchedule
+        setInterval(() => this.setSchedule(), 3_000);
     }
 
     stop() {
         this.player.stop();
         this.display.status = KiwiwiDisplay.status.IDLE;
-        clearInterval(this.updateSchedule);
-        this.updateSchedule = null;
+        this.resetSchedule();
         this.display.clear();
         this.display.update();
     }
 
     sleep() {
         this.player.stop();
+        this.playlist = [];
         this.display.status = KiwiwiDisplay.status.SLEEP;
-        clearInterval(this.updateSchedule);
-        this.updateSchedule = null;
+        this.resetSchedule();
         this.display.clear();
+        this.setPlaylistContent();
         this.display.update();
+        this.vm.close();
     }
 
     pause() {
         if (this.player.state.status === AudioPlayerStatus.Playing) {
             this.player.pause();
 
+            this.resetSchedule();
             this.playstatus = 'PAUSED';
             this.setPlayerEmbed();
             this.display.buttonComponents = baseButtonComponents(false);
@@ -171,6 +173,7 @@ export class KiwiwiPlayer {
         if (this.player.state.status === AudioPlayerStatus.Paused) {
             this.player.unpause();
 
+            setInterval(() => this.setSchedule(), 3_000);
             this.playstatus = 'PLAYING';
             this.setPlayerEmbed();
             this.display.buttonComponents = baseButtonComponents(true);
@@ -245,7 +248,7 @@ export class KiwiwiPlayer {
             .slice(0, 3)
             .reverse()
             .map((i) => i.title);
-        const current = this.playlist[0].title;
+        const current = this.playlist[0]?.title ?? '';
         const next = this.playlist.slice(1, 10).map((i) => i.title);
         this.display.playlistContent = basePlaylistContent(prev, current, next);
     }
@@ -261,5 +264,27 @@ export class KiwiwiPlayer {
                 playMode: this.playMode,
             }),
         ];
+    }
+
+    setSchedule() {
+        this.updateSchedule =
+            this.updateSchedule ??
+            setInterval(async () => {
+                if (!this.playlist[0]) return;
+
+                this.display.statusContent = baseStatusContent(
+                    musicProgress(
+                        Math.round(this.resource.playbackDuration / 1000),
+                        this.playlist[0].duration
+                    ),
+                    KiwiwiDisplay.status.PLAYING.emoji
+                );
+                await this.display.update();
+            }, config.scheduleDuration);
+    }
+
+    resetSchedule() {
+        clearInterval(this.updateSchedule);
+        this.updateSchedule = null;
     }
 }

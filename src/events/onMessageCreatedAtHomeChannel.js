@@ -22,12 +22,10 @@ export const execute = async (message) => {
     // auto delete message
     setTimeout(() => {
         message.delete().catch(() => {
-            message
-                .reply(
-                    errorEmbed(`${config.name}가 메시지 관리 권한을 가지고 있지 않아 메시지를 자동 삭제할 수 없어요!
+            message.reply(
+                errorEmbed(`${config.name}가 메시지 관리 권한을 가지고 있지 않아 메시지를 자동 삭제할 수 없어요!
 ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가질 수 있도록 서버 관리자에게 요청해주세요.`)
-                )
-                .catch(() => {});
+            );
         });
     }, config.autoDeleteTimeout);
 
@@ -47,6 +45,7 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         return false;
     }
 
+    // get music by keyword
     const keyword = message.content;
     let elements = [];
 
@@ -68,6 +67,11 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
     if (!vm) {
         vm = new VoiceManager(message.member.voice.channel);
         voiceManagerQueue[message.guild.id] = vm;
+        await vm.connect();
+        vm.kiwiwiPlayer.add(elements);
+        vm.kiwiwiPlayer.play();
+    } else if (vm.destroyed) {
+        // FIXME: should be reconnect
         await vm.connect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
