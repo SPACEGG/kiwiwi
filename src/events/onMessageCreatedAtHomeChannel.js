@@ -80,12 +80,16 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
         vm.kiwiwiPlayer.add(elements);
     }
 
-    const repliedMsg = await message.reply(
-        confirmEmbed(`음악 ${elements.length}개를 대기열에 추가했어요.`)
-    );
-    setTimeout(() => {
-        repliedMsg.delete();
-    }, config.autoDeleteTimeout);
-
+    try {
+        const msgFetch = await message.channel.messages.fetch(message.id);
+        const replyMessage = await msgFetch.reply(
+            confirmEmbed(`음악 ${elements.length}개를 대기열에 추가했어요.`)
+        );
+        setTimeout(() => {
+            replyMessage.delete();
+        }, config.autoDeleteTimeout);
+    } catch (e) {
+        logger.warn('message already deleted!');
+    }
     return;
 };
