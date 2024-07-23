@@ -72,7 +72,7 @@ export class KiwiwiPlayer {
 
     async getResource(music) {
         try {
-            const stream = await music.audio;
+            const stream = await music.audio();
             return createAudioResource(stream);
         } catch (e) {
             return false;
