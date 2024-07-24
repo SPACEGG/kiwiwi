@@ -1,6 +1,6 @@
 {
     "name": "kiwiwi",
-    "version": "1.3.0",
+    "version": "1.4.1",
     "description": "kiwiwi - private discord music bot",
     "type": "module",
     "main": "./index.js",
@@ -8,6 +8,7 @@
         "dev": "NODE_ENV=development nodemon --exec node ./index.js",
         "build": "echo no build!",
         "lint": "./node_modules/.bin/eslint ./src",
+        "lint:fix": "./node_modules/.bin/eslint --fix ./src",
         "start": "pm2 start ecosystem.config.* --env production",
         "restart": "pm2 restart ecosystem.config.* --env production"
     },

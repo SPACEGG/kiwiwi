@@ -15,7 +15,7 @@ export default (link) => {
     return () =>
         new Promise((res) => {
             const stream = getStream(link);
-            stream.catch((e) => {});
+            stream.catch(() => {});
             res(stream.stdout);
         });
 };
