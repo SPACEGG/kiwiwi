@@ -54,6 +54,7 @@ export const execute = async (interaction) => {
         }),
     ];
 
+    // select menu actionrow
     const makeSelectList = (startIndex, endIndex, currentPage, endPage) =>
         new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
@@ -62,6 +63,7 @@ export const execute = async (interaction) => {
                 .addOptions(options.slice(startIndex, endIndex))
         );
 
+    // button actionrow
     const makeButtons = (prev, next, link) => {
         const buttons = [
             new ButtonBuilder()
@@ -84,7 +86,7 @@ export const execute = async (interaction) => {
         return new ActionRowBuilder().addComponents(...buttons);
     };
 
-    // option limit: 25
+    // max options limit: 25
     let start = 0;
     let end = 25;
     let currPage = 1;
