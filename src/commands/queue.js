@@ -114,25 +114,17 @@ export const execute = async (interaction) => {
                 buttonRow = makeButtons(currPage !== 1, currPage !== endPage, link);
                 await confirmation.update(confirmEmbed('링크 버튼을 생성했어요.'));
             } else if (confirmation.customId === 'prev') {
-                if (start - 25 < 0) {
-                    await confirmation.update(warningEmbed('첫번째 페이지에요.'));
-                } else {
-                    start -= 25;
-                    end -= 25;
-                    menuRow = makeSelectList(start, end, --currPage, endPage);
-                    buttonRow = makeButtons(currPage !== 1, currPage !== endPage);
-                    await confirmation.update(confirmEmbed('이전 페이지로 넘겼어요.'));
-                }
+                start -= 25;
+                end -= 25;
+                menuRow = makeSelectList(start, end, --currPage, endPage);
+                buttonRow = makeButtons(currPage !== 1, currPage !== endPage);
+                await confirmation.update(confirmEmbed('이전 페이지로 넘겼어요.'));
             } else if (confirmation.customId === 'next') {
-                if (end + 25 > options.length) {
-                    await confirmation.update(warningEmbed('마지막 페이지에요.'));
-                } else {
-                    start += 25;
-                    end += 25;
-                    menuRow = makeSelectList(start, end, ++currPage, endPage);
-                    buttonRow = makeButtons(currPage !== 1, currPage !== endPage);
-                    await confirmation.update(confirmEmbed('다음 페이지로 넘겼어요.'));
-                }
+                start += 25;
+                end += 25;
+                menuRow = makeSelectList(start, end, ++currPage, endPage);
+                buttonRow = makeButtons(currPage !== 1, currPage !== endPage);
+                await confirmation.update(confirmEmbed('다음 페이지로 넘겼어요.'));
             }
             await queueResponse(confirmation);
         } catch (e) {

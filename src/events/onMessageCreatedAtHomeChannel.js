@@ -30,12 +30,7 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
     }, config.autoDeleteTimeout);
 
     // check user's channel status
-    if (
-        !message.member.voice.channel ||
-        (voiceManagerQueue[message.guild.id] &&
-            message.member.voice.channel !==
-                voiceManagerQueue[message.guild.id].voiceChannel)
-    ) {
+    if (!message.member.voice.channel) {
         const repliedMsg = await message.reply(
             errorEmbed('음성 채널에 먼저 참가해주세요')
         );
