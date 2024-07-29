@@ -32,9 +32,6 @@ const data = new SlashCommandBuilder()
 
 const execute = async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
-    setTimeout(() => {
-        interaction.deleteReply();
-    }, config.autoDeleteTimeout + config.interactionWaitingTimeout);
 
     // find prev record
     const prevHome = await db.home.findOne({ where: { guild_id: interaction.guildId } });
@@ -77,9 +74,15 @@ const execute = async (interaction) => {
                         `키위위 홈 채널을 <#${interaction.channelId}>(으)로 변경했어요!`
                     )
                 );
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
                 return true;
             } else if (confirmation.customId === 'no') {
                 await confirmation.update(warningEmbed('작업이 취소되었어요.'));
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
                 return false;
             }
         } catch (e) {
@@ -87,6 +90,9 @@ const execute = async (interaction) => {
                 await interaction.editReply(
                     warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
                 );
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
             } else {
                 logger.error(`SetHomeError: ${e}`);
             }
@@ -101,7 +107,7 @@ const execute = async (interaction) => {
         try {
             const confirmation = await res.awaitMessageComponent({
                 filter: collectorFilter,
-                time: 60_000,
+                time: config.interactionWaitingTimeout,
             });
 
             // create record && create kiwiwi display
@@ -121,9 +127,15 @@ const execute = async (interaction) => {
                         `키위위 홈 채널을 <#${interaction.channelId}>(으)로 등록했어요!`
                     )
                 );
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
                 return true;
             } else if (confirmation.customId === 'no') {
                 await confirmation.update(warningEmbed('작업이 취소되었어요.'));
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
                 return false;
             }
         } catch (e) {
@@ -131,6 +143,9 @@ const execute = async (interaction) => {
                 await interaction.editReply(
                     warningEmbed('사용자 입력이 없어 작업이 취소되었어요.')
                 );
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, config.autoDeleteTimeout);
             } else {
                 logger.error(`SetHomeError: ${e}`);
             }

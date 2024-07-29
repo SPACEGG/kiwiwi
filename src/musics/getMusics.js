@@ -1,4 +1,3 @@
-import logger from '#src/logger.js';
 import youtube from '#src/musics/youtube.js';
 import youtubePlaylist from '#src/musics/youtubePlaylist.js';
 import youtubeSearch from '#src/musics/youtubeSearch.js';
