@@ -40,7 +40,7 @@ export const execute = async (interaction) => {
 
     // make select menu options from playedlist+playlist
     const options = [
-        ...playedlist.map((info, i) => {
+        ...playedlist.reverse().map((info, i) => {
             return new StringSelectMenuOptionBuilder()
                 .setLabel(`${i - playedlist.length}: ${info.title}`)
                 .setValue(info.link)
