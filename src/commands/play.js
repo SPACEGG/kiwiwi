@@ -66,7 +66,7 @@ export const execute = async (interaction) => {
 
     // connect or add
     let vm = voiceManagerQueue[interaction.guild.id];
-    if (!vm) {
+    if (!vm || vm?.destroyed) {
         vm = new VoiceManager(interaction.member.voice.channel);
         voiceManagerQueue[interaction.guild.id] = vm;
         await vm.connect();

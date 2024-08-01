@@ -59,7 +59,7 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
 
     // connect or add
     let vm = voiceManagerQueue[message.guild.id];
-    if (!vm) {
+    if (!vm || vm?.destroyed) {
         vm = new VoiceManager(message.member.voice.channel);
         voiceManagerQueue[message.guild.id] = vm;
         await vm.connect();
