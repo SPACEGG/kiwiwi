@@ -21,7 +21,7 @@ export class KiwiwiPlayer {
         ONE: 'music',
         ALL: 'playlist',
     };
-    constructor(guild, display) {
+    constructor(guild, display, vm) {
         this.player = createAudioPlayer();
         this.playlist = [];
         this.playedlist = [];
@@ -31,7 +31,7 @@ export class KiwiwiPlayer {
         this.nextResource = undefined;
         this.playMode = KiwiwiPlayer.repeatMode.NONE;
         this.playstatus = 'IDLE';
-        this.vm = undefined;
+        this.vm = vm;
 
         this.initPlayer();
     }
@@ -65,8 +65,9 @@ export class KiwiwiPlayer {
         });
     }
 
-    reload() {
+    reload(vm) {
         this.player = createAudioPlayer();
+        this.vm = vm;
         this.initPlayer();
     }
 
@@ -144,7 +145,7 @@ export class KiwiwiPlayer {
 
     sleep() {
         this.player.stop();
-        this.playlist = [];
+        // this.playlist = [];
         this.display.status = KiwiwiDisplay.status.SLEEP;
         this.resetSchedule();
         this.display.clear();

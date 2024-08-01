@@ -59,15 +59,14 @@ ${config.name}가 <#${message.channel.id}>의 **메시지 관리 권한**을 가
 
     // connect or add
     let vm = voiceManagerQueue[message.guild.id];
-    if (!vm || vm?.destroyed) {
+    if (!vm) {
         vm = new VoiceManager(message.member.voice.channel);
         voiceManagerQueue[message.guild.id] = vm;
         await vm.connect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else if (vm.destroyed) {
-        // FIXME: should be reconnect
-        await vm.connect();
+        await vm.reconnect(message.member.voice.channel);
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {

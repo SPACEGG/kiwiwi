@@ -66,15 +66,14 @@ export const execute = async (interaction) => {
 
     // connect or add
     let vm = voiceManagerQueue[interaction.guild.id];
-    if (!vm || vm?.destroyed) {
+    if (!vm) {
         vm = new VoiceManager(interaction.member.voice.channel);
         voiceManagerQueue[interaction.guild.id] = vm;
         await vm.connect();
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else if (vm.destroyed) {
-        // FIXME: should be reconnect
-        await vm.connect();
+        await vm.reconnect(interaction.member.voice.channel);
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {
