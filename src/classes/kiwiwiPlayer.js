@@ -232,14 +232,18 @@ export class KiwiwiPlayer {
     }
 
     setPlaylistContent() {
-        // playedlist*3 + playlist*10
-        const prev = this.playedlist
-            .slice(0, 3)
-            .reverse()
-            .map((i) => i.title);
-        const current = this.playlist[0]?.title ?? '';
-        const next = this.playlist.slice(1, 10).map((i) => i.title);
-        this.display.playlistContent = basePlaylistContent(prev, current, next);
+        try {
+            // playedlist*3 + playlist*10
+            const prev = this.playedlist
+                .slice(0, 3)
+                .reverse()
+                .map((i) => i.title);
+            const current = this.playlist[0]?.title ?? '';
+            const next = this.playlist.slice(1, 10).map((i) => i.title);
+            this.display.playlistContent = basePlaylistContent(prev, current, next);
+        } catch (e) {
+            logger.error(`KiwiwiPlayerPlaylistError: ${e}`);
+        }
     }
 
     setPlayerEmbed() {

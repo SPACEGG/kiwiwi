@@ -137,3 +137,6 @@ db/
 
 # vscode
 ./vscode/
+
+# yt-dlp temp
+--Frag*
