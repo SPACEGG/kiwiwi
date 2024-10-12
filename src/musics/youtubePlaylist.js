@@ -1,5 +1,5 @@
 import yts from 'yt-search';
-import youtubeAudio from './youtubeAudio.js';
+import defaultAudio from './defaultAudio.js';
 
 export default async (link) => {
     const listId = new URL(link).searchParams.get('list');
@@ -12,7 +12,7 @@ export default async (link) => {
                 const videoLink = `https://www.youtube.com/watch?v=${i.videoId}`;
                 return {
                     link: videoLink,
-                    audio: youtubeAudio(videoLink),
+                    audio: () => defaultAudio(videoLink),
                     title: i.title,
                     thumbnail: i.thumbnail,
                     duration: i.duration.seconds,

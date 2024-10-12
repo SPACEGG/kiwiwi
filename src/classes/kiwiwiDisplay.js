@@ -108,7 +108,7 @@ export const musicProgress = (current, length) => {
     return `${secToString(current).padEnd(5, ' ')}|\u001b[0;40;37m${'·'.repeat(
         progress - 1 < 0 ? 0 : progress - 1
     )}${'♪'.repeat(progress - 1 < 0 ? 0 : 1)}\u001b[0;46m${' '.repeat(
-        25 - progress
+        25 - progress > 0 ? 25 - progress : 0
     )}\u001b[0m\u001b[0;32m|${secToString(length).padStart(5, ' ')}`;
 };
 

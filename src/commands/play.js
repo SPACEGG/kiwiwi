@@ -73,8 +73,7 @@ export const execute = async (interaction) => {
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else if (vm.destroyed) {
-        // FIXME: should be reconnect
-        await vm.connect();
+        await vm.reconnect(interaction.member.voice.channel);
         vm.kiwiwiPlayer.add(elements);
         vm.kiwiwiPlayer.play();
     } else {

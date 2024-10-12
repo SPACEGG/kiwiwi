@@ -1,15 +1,16 @@
-import { create } from 'soundcloud-downloader';
+import youtubeDl from 'youtube-dl-exec';
+import defaultAudio from './defaultAudio.js';
 
-const scdl = create();
+const getInfo = (link) => youtubeDl(link, { dumpSingleJson: true });
 
 export default async (link) => {
-    const rawInfo = await scdl.getInfo(link);
+    const rawInfo = await getInfo(link);
 
     return {
         link,
-        audio: () => scdl.download(link),
+        audio: () => defaultAudio(link),
         title: rawInfo.title,
-        thumbnail: rawInfo.artwork_url,
-        duration: Math.round(rawInfo.duration / 1000),
+        thumbnail: rawInfo.thumbnails.find((i) => i.id === 'original').url,
+        duration: Math.round(rawInfo.duration),
     };
 };

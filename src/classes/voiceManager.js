@@ -41,8 +41,7 @@ export class VoiceManager {
         await this.initConnection();
         return new Promise((resolve) => {
             getKiwiwiDisplay(this.voiceChannel.guild).then((res) => {
-                this.kiwiwiPlayer = new KiwiwiPlayer(this.voiceChannel.guild, res);
-                this.kiwiwiPlayer.vm = this;
+                this.kiwiwiPlayer = new KiwiwiPlayer(this.voiceChannel.guild, res, this);
                 this.ready = true;
                 this.connection.subscribe(this.kiwiwiPlayer.player);
                 this.connected = true;
@@ -58,7 +57,8 @@ export class VoiceManager {
         return once(this.event, 'connected');
     }
 
-    async reconnect() {
+    async reconnect(channel) {
+        this.voiceChannel = channel;
         this.connection = joinVoiceChannel({
             channelId: this.voiceChannel.id,
             guildId: this.voiceChannel.guild.id,
@@ -67,8 +67,8 @@ export class VoiceManager {
         await this.initConnection();
         return new Promise((resolve) => {
             getKiwiwiDisplay(this.voiceChannel.guild).then(() => {
+                this.kiwiwiPlayer.reload(this);
                 this.ready = true;
-                this.kiwiwiPlayer.reload();
                 this.connection.subscribe(this.kiwiwiPlayer.player);
                 this.connected = true;
                 this.destroyed = false;
