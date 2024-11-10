@@ -1,21 +1,29 @@
-import yts from 'yt-search';
+import youtubeDl from 'youtube-dl-exec';
 import defaultAudio from './defaultAudio.js';
 
-export default async (link) => {
-    const listId = new URL(link).searchParams.get('list');
+const getAlbumInfo = (link) =>
+    youtubeDl(link, {
+        dumpSingleJson: true,
+        skipDownload: true,
+        flatPlaylist: true,
+        noWarnings: true,
+        preferFreeFormats: true,
+        noCheckCertificates: true,
+    });
 
-    const infoList = (await yts({ listId })).videos;
+export default async (link) => {
+    const infoList = (await getAlbumInfo(link)).entries;
+
     return Promise.all(
         infoList
             .filter((i) => i.title !== '[Deleted video]' && i.title !== '[Private video]')
             .map(async (i) => {
-                const videoLink = `https://www.youtube.com/watch?v=${i.videoId}`;
                 return {
-                    link: videoLink,
-                    audio: () => defaultAudio(videoLink),
+                    link: i.url,
+                    audio: () => defaultAudio(i.url),
                     title: i.title,
-                    thumbnail: i.thumbnail,
-                    duration: i.duration.seconds,
+                    thumbnail: i.thumbnails[0].url,
+                    duration: i.duration,
                 };
             })
     );
