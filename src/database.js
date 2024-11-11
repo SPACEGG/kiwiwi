@@ -3,20 +3,20 @@ import { Sequelize } from 'sequelize';
 const sequelize = new Sequelize(
     process.env.NODE_ENV !== 'production'
         ? process.env.DEV_DATABASE_NAME
-        : process.env.DATABASE_NAME, // 데이터베이스 이름
+        : process.env.DATABASE_NAME,
     process.env.NODE_ENV !== 'production'
         ? process.env.DEV_DATABASE_USER
-        : process.env.DATABASE_USER, // 유저 명
+        : process.env.DATABASE_USER,
     process.env.NODE_ENV !== 'production'
         ? process.env.DEV_DATABASE_PASSWORD
-        : process.env.DATABASE_PASSWORD, // 비밀번호
+        : process.env.DATABASE_PASSWORD,
     {
         host:
             process.env.NODE_ENV !== 'production'
                 ? process.env.DEV_DATABASE_HOST
-                : process.env.DATABASE_HOST, // 데이터베이스 호스트
+                : process.env.DATABASE_HOST,
         logging: false,
-        dialect: 'mariadb', // 사용할 데이터베이스 종류
+        dialect: 'mariadb',
         define: { freezeTableName: true },
     }
 );

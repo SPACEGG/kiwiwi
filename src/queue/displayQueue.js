@@ -11,7 +11,7 @@ export const initKiwiwiDisplay = async (guild, channel) => {
 
     displayQueue[guild.id] = display;
 
-    const record = db.home.findOne({ where: { guild_id: guild.id } });
+    const record = await db.home.findOne({ where: { guild_id: guild.id } });
 
     if (record) {
         await db.home.update(
