@@ -6,12 +6,14 @@ export default async (link) => {
         const stream = youtubeDl.exec(link, {
             extractAudio: true,
             noCheckCertificates: true,
-            audioFormat: 'mp3',
+            audioFormat: 'best',
+            audioQuality: 0,
             output: '-',
-            noWarnings: true,
+            abortOnError: true,
+            noCacheDir: true,
         });
         stream.catch((e) => {
-            logger.error(`yt-dlpError(${link}): ${e}`);
+            logger.error(`defaultAudioError(${link}): ${e}`);
         });
         res(stream.stdout);
     });

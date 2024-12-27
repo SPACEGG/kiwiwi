@@ -140,3 +140,6 @@ db/
 
 # yt-dlp temp
 --Frag*
+
+# yt-dlp cache
+cache/

@@ -1,5 +1,5 @@
 import db from '#src/database.js';
-import { errorEmbed } from '#src/embeds.js';
+import { warningEmbed } from '#src/embeds.js';
 
 export const secToString = (seconds) => {
     const date = new Date(seconds * 1000);
@@ -34,16 +34,8 @@ export const checkHomeChannel = async (interaction) => {
     });
     if (!home) {
         await interaction.editReply(
-            errorEmbed(
+            warningEmbed(
                 '키위위 홈 채널이 등록되지 않았어요. 키위위 홈 채널을 서버 관리자가 등록해주세요.'
-            )
-        );
-        return false;
-    }
-    if (interaction.channel.id !== home.channel_id) {
-        await interaction.editReply(
-            errorEmbed(
-                `키위위 홈 채널에서만 사용가능한 명령이에요. <#${home.channel_id}>에서 다시 시도해보세요.`
             )
         );
         return false;

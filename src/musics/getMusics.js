@@ -5,6 +5,8 @@ import soundcloud from '#src/musics/soundcloud.js';
 import soundcloudSets from '#src/musics/soundcloudSets.js';
 import bandcamp from '#src/musics/bandcamp.js';
 import bandcampAlbum from '#src/musics/bandcampAlbum.js';
+import spotify from '#src/musics/spotify.js';
+import spotifyPlaylist from '#src/musics/spotifyPlaylist.js';
 
 const MUSIC_INPUT_TYPE = {
     KEYWORD: 'keyword',
@@ -27,13 +29,13 @@ const getMusicInputType = (input) => {
     const spotifyPlaylistPattern =
         /https?:\/\/open\.spotify\.com\/(playlist|album)(\/.*)?/;
     const soundcloudPattern =
-        /https?:\/\/([a-zA-Z0-9-]+\.)*soundcloud\.com\/[a-zA-Z0-9-]+\/(?!sets)[a-zA-Z0-9-]+/;
+        /https?:\/\/([a-zA-Z0-9-]+\.)*soundcloud\.com\/[a-zA-Z0-9-_]+\/(?!sets)[a-zA-Z0-9-_]+/;
     const soundcloudSetsPattern =
-        /https?:\/\/soundcloud\.com\/[a-zA-Z0-9-]+\/sets\/[a-zA-Z0-9-]+/;
+        /https?:\/\/soundcloud\.com\/[a-zA-Z0-9-_]+\/sets\/[a-zA-Z0-9-_]+/;
     const bandcampPattern =
-        /https?:\/\/([a-zA-Z0-9-]+\.)*bandcamp\.com\/track\/[a-zA-Z0-9-]+/;
+        /https?:\/\/([a-zA-Z0-9-]+\.)*bandcamp\.com\/track\/[a-zA-Z0-9-_]+/;
     const bandcampAlbumPattern =
-        /https?:\/\/([a-zA-Z0-9-]+\.)*bandcamp\.com\/album\/[a-zA-Z0-9-]+/;
+        /https?:\/\/([a-zA-Z0-9-]+\.)*bandcamp\.com\/album\/[a-zA-Z0-9-_]+/;
 
     if (input.match(youtubePattern)) return MUSIC_INPUT_TYPE.YOUTUBE;
     if (input.match(youtubePlaylistPattern)) return MUSIC_INPUT_TYPE.YOUTUBE_PLAYLIST;
@@ -47,8 +49,21 @@ const getMusicInputType = (input) => {
     return MUSIC_INPUT_TYPE.KEYWORD;
 };
 
-export default async (keyword, channelInput) => {
+// multiple urls line input
+export default async (text, channelInput) => {
     const userId = channelInput.author?.id ?? channelInput.user.id;
+    const channelId = channelInput.member.voice.channel.id;
+    const splitedKeywords = text.split('\n');
+    return (
+        await Promise.all(
+            splitedKeywords.map(
+                async (keyword) => await music(keyword, userId, channelId)
+            )
+        )
+    ).flat();
+};
+
+const music = async (keyword, userId, channelId) => {
     switch (getMusicInputType(keyword)) {
         case MUSIC_INPUT_TYPE.YOUTUBE: {
             const info = await youtube(keyword);
@@ -56,7 +71,7 @@ export default async (keyword, channelInput) => {
                 {
                     ...info,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 },
             ];
         }
@@ -66,7 +81,7 @@ export default async (keyword, channelInput) => {
                 return {
                     ...i,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 };
             });
         }
@@ -76,7 +91,7 @@ export default async (keyword, channelInput) => {
                 {
                     ...info,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 },
             ];
         }
@@ -86,7 +101,7 @@ export default async (keyword, channelInput) => {
                 return {
                     ...i,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 };
             });
         }
@@ -96,7 +111,7 @@ export default async (keyword, channelInput) => {
                 {
                     ...info,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 },
             ];
         }
@@ -106,7 +121,27 @@ export default async (keyword, channelInput) => {
                 return {
                     ...i,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
+                };
+            });
+        }
+        case MUSIC_INPUT_TYPE.SPOTIFY: {
+            const info = await spotify(keyword);
+            return [
+                {
+                    ...info,
+                    userId,
+                    channelId,
+                },
+            ];
+        }
+        case MUSIC_INPUT_TYPE.SPOTIFY_PLAYLIST: {
+            const entries = await spotifyPlaylist(keyword);
+            return entries.map((i) => {
+                return {
+                    ...i,
+                    userId,
+                    channelId,
                 };
             });
         }
@@ -118,7 +153,7 @@ export default async (keyword, channelInput) => {
                 {
                     ...info,
                     userId,
-                    channelId: channelInput.member.voice.channel.id,
+                    channelId,
                 },
             ];
         }

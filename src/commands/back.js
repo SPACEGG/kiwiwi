@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { checkHomeChannel } from '#src/utils.js';
-import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
-import { errorEmbed, confirmEmbed } from '#src/embeds.js';
+import { getVoiceManager } from '#src/queue/voiceManagerQueue.js';
+import { warningEmbed, confirmEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 /**
@@ -22,17 +22,17 @@ export const execute = async (interaction) => {
     if (!(await checkHomeChannel(interaction))) return false;
 
     // check if vm exsits
-    const vm = voiceManagerQueue[interaction.guild.id];
+    const vm = getVoiceManager(interaction.guild);
     if (!vm) {
         await interaction.editReply(
-            errorEmbed(`${config.name}는 음성 채널에 있지 않아요.`)
+            warningEmbed(`${config.name}는 음성 채널에 있지 않아요.`)
         );
         return false;
     }
 
     // check user's channel status
     if (interaction.member.voice?.channel !== vm.voiceChannel) {
-        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+        await interaction.editReply(warningEmbed('음성 채널에 먼저 참가해주세요'));
         return false;
     }
 
@@ -40,6 +40,6 @@ export const execute = async (interaction) => {
 
     (await vm.kiwiwiPlayer.back())
         ? interaction.editReply(confirmEmbed('이전 음악을 다시 재생해요.'))
-        : interaction.editReply(errorEmbed('이전 음악이 존재하지 않아요.'));
+        : interaction.editReply(warningEmbed('이전 음악이 존재하지 않아요.'));
     return true;
 };

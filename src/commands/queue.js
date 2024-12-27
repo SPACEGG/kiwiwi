@@ -6,8 +6,8 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
-import { errorEmbed, confirmEmbed, warningEmbed } from '#src/embeds.js';
+import { getVoiceManager } from '#src/queue/voiceManagerQueue.js';
+import { warningEmbed, confirmEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 /**
@@ -17,16 +17,16 @@ import config from '#src/config.js';
 
 export const data = new SlashCommandBuilder()
     .setName('queue')
-    .setDescription('재생목록을 보여줘요.');
+    .setDescription('대기열 전체 목록을 보여줘요.');
 
 export const execute = async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
 
     // check if vm exsits
-    const vm = voiceManagerQueue[interaction.guild.id];
+    const vm = getVoiceManager(interaction.guild);
     if (!vm) {
         await interaction.editReply(
-            errorEmbed(`${config.name}는 음성 채널에 있지 않아요.`)
+            warningEmbed(`${config.name}는 음성 채널에 있지 않아요.`)
         );
         return false;
     }

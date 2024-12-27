@@ -3,17 +3,31 @@ import { secToString } from '#src/utils.js';
 import config from '#src/config.js';
 import logger from '#src/logger.js';
 
-export const baseStatusContent = (
-    text,
-    status
-) => `┌────────────────────────────────┐ ${status}
+export const baseStatusContent = (text, status) => {
+    const space = text.length < 66 ? 37 : 40;
+    return `┌────────────────────────────────┐ ${status}
 │    __    _        _        _   │  ${status}
 │   / /__ (_)    __(_)    __(_)  │   ${status}
-│  /  '_// / |/|/ / / |/|/ / /   └────┐
-│ /_/\\_\\/_/|__,__/_/|__,__/_/${('v' + config.version).padStart(9, ' ')}│
-├─────────────────────────────────────┤
-│${text.padEnd(37, ' ')}│
-└─────────────────────────────────────┘`;
+│  /  '_// / |/|/ / / |/|/ / /   └${'─'.repeat(space - 33)}┐
+│ /_/\\_\\/_/|__,__/_/|__,__/_/${('v' + config.version).padStart(space - 28, ' ')}│
+├${'─'.repeat(space)}┤
+│${text.padEnd(space, ' ')}│
+└${'─'.repeat(space)}┘`;
+};
+
+export const musicProgress = (current, length) => {
+    const space = length < 3600 ? 37 : 40;
+    const progressSteps = space < 40 ? 25 : 24;
+    const timeSpace = space < 40 ? space - 32 : space - 33;
+    const progress = Math.ceil((current / length) * progressSteps);
+
+    const result = `${secToString(current).padEnd(timeSpace, ' ')}|\u001b[0;40;37m${'·'.repeat(
+        progress - 1 < 0 ? 0 : progress - 1
+    )}${'♪'.repeat(progress - 1 < 0 ? 0 : 1)}\u001b[0;46m${' '.repeat(
+        progressSteps - progress > 0 ? progressSteps - progress : 0
+    )}\u001b[0m\u001b[0;32m|${secToString(length).padStart(timeSpace, ' ')}`;
+    return result;
+};
 
 export const basePlaylistContent = (prev, curr, next) => {
     let sc = ` ═══════════════PLAYLIST═══════════════`;
@@ -31,9 +45,11 @@ export const basePlaylistContent = (prev, curr, next) => {
 };
 
 export const basePlayerEmbed = (info) => {
-    const playingText = info.isPlaying ? '음악을 듣고 있어요' : '음악을 잠시 멈췄어요';
+    const playingText = info.isPlaying
+        ? `${config.name}와 <#${info.channelId}>에서 함께 음악 들어요 🎵`
+        : `${config.name}가 <#${info.channelId}>에서 음악을 잠시 멈췄어요 🎵`;
     return {
-        title: `${config.name}가 <#${info.channelId}>에서 ${playingText} 🎵`,
+        title: playingText,
         description: `지금 재생 중 - [${info.title}](${info.link})`,
         fields: [
             {
@@ -70,46 +86,37 @@ export const basePlayerEmbed = (info) => {
 export const baseButtonComponents = (isPlaying) => {
     const back = new ButtonBuilder()
         .setCustomId('back')
-        .setLabel('⇦')
+        .setEmoji(config.emoji.back)
         .setStyle(ButtonStyle.Primary);
     const playPause = isPlaying
         ? new ButtonBuilder()
               .setCustomId('pause')
-              .setLabel('◫')
+              .setEmoji(config.emoji.pause)
               .setStyle(ButtonStyle.Primary)
         : new ButtonBuilder()
               .setCustomId('resume')
-              .setLabel('▶')
+              .setEmoji(config.emoji.play)
               .setStyle(ButtonStyle.Primary);
     const next = new ButtonBuilder()
         .setCustomId('skip')
-        .setLabel('⇨')
+        .setEmoji(config.emoji.next)
         .setStyle(ButtonStyle.Primary);
     const leave = new ButtonBuilder()
         .setCustomId('leave')
-        .setLabel('■')
+        .setEmoji(config.emoji.stop)
         .setStyle(ButtonStyle.Danger);
     const shuffle = new ButtonBuilder()
         .setCustomId('shuffle')
-        .setLabel('⇌')
+        .setEmoji(config.emoji.shuffle)
         .setStyle(ButtonStyle.Secondary);
     const loop = new ButtonBuilder()
         .setCustomId('loop')
-        .setLabel('↻')
+        .setEmoji(config.emoji.loop)
         .setStyle(ButtonStyle.Secondary);
     const row1 = new ActionRowBuilder().addComponents(back, playPause, next);
     const row2 = new ActionRowBuilder().addComponents(leave, shuffle, loop);
 
     return [row1, row2];
-};
-
-export const musicProgress = (current, length) => {
-    const progress = Math.ceil((current / length) * 25);
-    return `${secToString(current).padEnd(5, ' ')}|\u001b[0;40;37m${'·'.repeat(
-        progress - 1 < 0 ? 0 : progress - 1
-    )}${'♪'.repeat(progress - 1 < 0 ? 0 : 1)}\u001b[0;46m${' '.repeat(
-        25 - progress > 0 ? 25 - progress : 0
-    )}\u001b[0m\u001b[0;32m|${secToString(length).padStart(5, ' ')}`;
 };
 
 // --------------------------------------------------
@@ -119,7 +126,6 @@ export class KiwiwiDisplay {
         IDLE: { emoji: '🥝', text: '  Waiting for music links...' },
         PLAYING: { emoji: '💚', text: '' },
         SLEEP: { emoji: '💤', text: '  kiwiwi is sleeping...' },
-        UNHEALTHY: { emoji: '💥', text: '  kiwiwi is not available...' },
     };
 
     constructor(ch, msg) {

@@ -6,40 +6,54 @@ const embed = {
     title: '키위위 도움말',
     fields: [
         {
-            name: '/sethome',
-            value: '**[관리자 명령]** 현재 채널을 키위위 홈으로 설정해요.',
+            name: '/play `link or keyword`',
+            value: '입력한 주소 또는 키워드에 해당하는 음악을 대기열에 추가해요.',
+            inline: true,
         },
         {
-            name: '/play `link`',
-            value: '음악을 대기열에 추가해요.',
+            name: '/pause',
+            value: '음악을 일시정지해요.',
+            inline: true,
+        },
+        {
+            name: '/resume',
+            value: '음악을 다시 재생해요.',
+            inline: true,
         },
         {
             name: '/leave',
             value: '대기열을 비우고 음성 채널에서 나가요.',
-        },
-        {
-            name: '/skip `number`',
-            value: '재생중인 음악 또는 특정 대기열 번호까지 넘겨요.',
-        },
-        {
-            name: '/pause',
-            value: '재생중인 음악을 멈춰요.',
-        },
-        {
-            name: '/resume',
-            value: '멈춰있던 음악을 다시 재생해요.',
-        },
-        {
-            name: '/remove `number`',
-            value: '대기열 마지막 음악 또는 특정 대기열 번호를 제외해요.',
+            inline: true,
         },
         {
             name: '/shuffle',
             value: '대기열 순서를 임의로 섞어요.',
+            inline: true,
         },
         {
             name: '/loop `mode`',
             value: '음악 반복모드를 변경해요.',
+            inline: true,
+        },
+        {
+            name: '/queue',
+            value: '대기열 전체 목록을 보여줘요.',
+            inline: true,
+        },
+        {
+            name: '/skip `number`',
+            value: '다음 대기열 음악 또는 선택한 번호에 해당하는 음악을 바로 재생해요.',
+            inline: true,
+        },
+        {
+            name: '/remove `number`',
+            value: '대기열 마지막 음악 또는 선택한 번호에 해당하는 음악을 제외해요.',
+            inline: true,
+        },
+        {
+            name: '/search `query`',
+            value: '유튜브 기반 검색으로 음악을 대기열에 추가해요.',
+            inline: true,
         },
     ],
     footer: {
@@ -53,9 +67,5 @@ export const data = new SlashCommandBuilder()
 export const execute = async (interaction) => {
     // deferReply
     await interaction.deferReply({ ephemeral: true });
-    setTimeout(() => {
-        interaction.deleteReply();
-    }, config.autoDeleteTimeout);
-
     await interaction.editReply({ embeds: [embed] });
 };

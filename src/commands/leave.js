@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { errorEmbed, confirmEmbed } from '#src/embeds.js';
-import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
+import { warningEmbed, confirmEmbed } from '#src/embeds.js';
+import { getVoiceManager, destroyVoiceManager } from '#src/queue/voiceManagerQueue.js';
 import { checkHomeChannel } from '#src/utils.js';
 import config from '#src/config.js';
 
@@ -23,23 +23,23 @@ export const execute = async (interaction) => {
         return false;
     }
 
-    const vm = voiceManagerQueue[interaction.guild.id];
+    const vm = getVoiceManager(interaction.guild);
 
     // leave voice channel
     if (!vm) {
         await interaction.editReply(
-            errorEmbed(`${config.name}는 이미 음성 채널에 있지 않았어요.`)
+            warningEmbed(`${config.name}는 이미 음성 채널에 있지 않았어요.`)
         );
         return false;
     } else {
         // check user's channel status
         if (interaction.member.voice?.channel !== vm.voiceChannel) {
-            await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+            await interaction.editReply(warningEmbed('음성 채널에 먼저 참가해주세요'));
             return false;
         }
 
-        vm.destroy();
-        delete voiceManagerQueue[interaction.guild.id];
+        destroyVoiceManager(interaction.guild);
+
         await interaction.editReply(
             confirmEmbed('대기열을 비우고 음성 채널에서 나갔어요.')
         );

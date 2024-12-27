@@ -5,13 +5,16 @@ export const errorEmbed = (message) => {
     return {
         embeds: [
             {
-                title: config.kiwi + '🤮',
+                title: config.emoji.kiwi + '😨',
                 description: message,
                 color: config.errorRed,
             },
         ],
         components: [],
         ephemeral: true,
+        allowedMentions: {
+            repliedUser: false,
+        },
     };
 };
 
@@ -19,13 +22,16 @@ export const confirmEmbed = (message) => {
     return {
         embeds: [
             {
-                title: config.kiwi + '😊',
+                title: config.emoji.kiwi + '😊',
                 description: message,
                 color: config.kiwiGreen,
             },
         ],
         components: [],
         ephemeral: true,
+        allowedMentions: {
+            repliedUser: false,
+        },
     };
 };
 
@@ -33,13 +39,16 @@ export const warningEmbed = (message) => {
     return {
         embeds: [
             {
-                title: config.kiwi + '😕',
+                title: config.emoji.kiwi + '😕',
                 description: message,
                 color: config.warnYellow,
             },
         ],
         components: [],
         ephemeral: true,
+        allowedMentions: {
+            repliedUser: false,
+        },
     };
 };
 
@@ -47,7 +56,7 @@ const actionRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
         .setCustomId('yes')
         .setLabel('네')
-        .setEmoji(config.kiwi)
+        .setEmoji(config.emoji.kiwi)
         .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
         .setCustomId('no')
@@ -66,5 +75,8 @@ export const checkEmbed = (message) => {
         ],
         components: [actionRow],
         ephemeral: true,
+        allowedMentions: {
+            repliedUser: false,
+        },
     };
 };
