@@ -13,7 +13,7 @@ export default async (link) => {
             noCacheDir: true,
         });
         stream.catch((e) => {
-            logger.error(`defaultAudioError(${link}): ${e}`);
+            logger.warn(`defaultAudioError(${link}): ${e}`);
         });
         res(stream.stdout);
     });

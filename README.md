@@ -2,7 +2,7 @@
 
 | 가정용 디스코드 음악 봇 - kiwiwi 사용설명서
 
-![KiwiwiPlayer](https://i.imgur.com/VSsW6ps.png)
+![KiwiwiPlayer](https://i.imgur.com/Ceb5rFx.png)
 
 ---
 
