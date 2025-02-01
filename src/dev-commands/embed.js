@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { errorEmbed, confirmEmbed } from '#src/embeds.js';
+import { warningEmbed, confirmEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
 /**
@@ -43,7 +43,7 @@ export const execute = async (interaction) => {
         if (e.rawError) errormsg = e.message.split('\n').slice(0, 2);
         else errormsg = e.message.split('\n').slice(0, 2);
         await interaction.editReply(
-            errorEmbed(`유효하지 않은 json 입력이에요:\n${errormsg}`)
+            warningEmbed(`유효하지 않은 json 입력이에요:\n${errormsg}`)
         );
         return false;
     }

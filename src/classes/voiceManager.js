@@ -2,6 +2,7 @@ import { once, EventEmitter } from 'events';
 import { joinVoiceChannel, VoiceConnectionStatus, entersState } from '@discordjs/voice';
 import { KiwiwiPlayer } from '#src/classes/kiwiwiPlayer.js';
 import { getKiwiwiDisplay } from '#src/queue/displayQueue.js';
+import config from '#src/config.js';
 
 export class VoiceManager {
     constructor(voiceChannel) {
@@ -12,6 +13,8 @@ export class VoiceManager {
         this.event = new EventEmitter();
         this.connected = false;
         this.destroyed = false;
+        this.isCountdown = false;
+        this.countdownSchedule = null;
     }
 
     initConnection() {
@@ -82,13 +85,33 @@ export class VoiceManager {
         this.kiwiwiPlayer.stop();
         this.kiwiwiPlayer.clear();
         this.connection.destroy();
+        this.resetCountdown();
         this.destroyed = true;
         this.connected = false;
     }
 
     close() {
         this.connection.destroy();
+        this.resetCountdown();
         this.destroyed = true;
         this.connected = false;
+    }
+
+    startCountdown() {
+        if (this.isCountdown) return;
+
+        this.isCountdown = true;
+        this.kiwiwiPlayer.pause();
+        this.countdownSchedule = setInterval(() => {
+            this.destroy();
+        }, config.vmCountdownTimeout);
+    }
+
+    resetCountdown() {
+        if (!this.isCountdown) return;
+
+        this.isCountdown = false;
+        this.kiwiwiPlayer.resume();
+        clearInterval(this.countdownSchedule);
     }
 }

@@ -3,7 +3,7 @@ import { KiwiwiDisplay } from '#src/classes/kiwiwiDisplay.js';
 import logger from '#src/logger.js';
 
 // displayQueue: Map<guildId: string, KiwiwiDisplay>
-export const displayQueue = new Map();
+const displayQueue = new Map();
 
 export const initKiwiwiDisplay = async (guild, channel) => {
     const display = new KiwiwiDisplay(channel);

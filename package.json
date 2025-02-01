@@ -1,11 +1,11 @@
 {
     "name": "kiwiwi",
-    "version": "1.7.3",
+    "version": "2.0.1",
     "description": "kiwiwi - private discord music bot",
     "type": "module",
     "main": "./index.js",
     "scripts": {
-        "dev": "NODE_ENV=development nodemon --exec node ./index.js",
+        "dev": "NODE_ENV=development nodemon -e js --exec node ./index.js",
         "build": "echo no build!",
         "lint": "./node_modules/.bin/eslint ./src",
         "lint:fix": "./node_modules/.bin/eslint --fix ./src",
@@ -30,13 +30,14 @@
         "@discordjs/voice": "^0.17.0",
         "discord.js": "^14.15.3",
         "dotenv": "^16.4.5",
+        "isomorphic-unfetch": "^4.0.2",
         "libsodium-wrappers": "^0.7.13",
         "mariadb": "^3.3.1",
         "sequelize": "^6.37.3",
         "sodium": "^3.0.2",
+        "spotify-url-info": "^3.2.18",
         "winston": "^3.13.1",
         "winston-daily-rotate-file": "^5.0.0",
-        "youtube-dl-exec": "^3.0.7",
-        "yt-search": "^2.11.1"
+        "youtube-dl-exec": "^3.0.10"
     }
 }

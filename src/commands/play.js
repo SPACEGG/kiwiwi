@@ -1,9 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js';
 import logger from '#src/logger.js';
 import { checkHomeChannel } from '#src/utils.js';
-import { VoiceManager } from '#src/classes/voiceManager.js';
-import { voiceManagerQueue } from '#src/queue/voiceManagerQueue.js';
-import { errorEmbed, confirmEmbed } from '#src/embeds.js';
+import { getVoiceManager, addElements } from '#src/queue/voiceManagerQueue.js';
+import { errorEmbed, warningEmbed, confirmEmbed } from '#src/embeds.js';
 import getMusics from '#src/musics/getMusics.js';
 import config from '#src/config.js';
 
@@ -22,7 +21,7 @@ import config from '#src/config.js';
 
 export const data = new SlashCommandBuilder()
     .setName('play')
-    .setDescription('음악을 대기열에 추가해요.')
+    .setDescription('입력한 주소 또는 키워드에 해당하는 음악을 대기열에 추가해요.')
     .addStringOption((option) =>
         option
             .setName('keyword')
@@ -31,6 +30,10 @@ export const data = new SlashCommandBuilder()
     );
 
 export const execute = async (interaction) => {
+    const guild = interaction.guild;
+    const voiceChannel = interaction.member.voice.channel;
+    let vm = getVoiceManager(guild);
+
     // deferReply
     await interaction.deferReply({ ephemeral: true });
     setTimeout(() => {
@@ -40,13 +43,8 @@ export const execute = async (interaction) => {
     if (!(await checkHomeChannel(interaction))) return false;
 
     // check user's channel status
-    if (
-        !interaction.member.voice.channel ||
-        (voiceManagerQueue[interaction.guild.id] &&
-            interaction.member.voice.channel !==
-                voiceManagerQueue[interaction.guild.id].voiceChannel)
-    ) {
-        await interaction.editReply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+    if (!voiceChannel || (vm && voiceChannel !== vm.voiceChannel)) {
+        await interaction.editReply(warningEmbed('음성 채널에 먼저 참가해주세요'));
         return false;
     }
 
@@ -65,21 +63,7 @@ export const execute = async (interaction) => {
     }
 
     // connect or add
-    let vm = voiceManagerQueue[interaction.guild.id];
-    if (!vm) {
-        vm = new VoiceManager(interaction.member.voice.channel);
-        voiceManagerQueue[interaction.guild.id] = vm;
-        await vm.connect();
-        vm.kiwiwiPlayer.add(elements);
-        vm.kiwiwiPlayer.play();
-    } else if (vm.destroyed) {
-        await vm.reconnect(interaction.member.voice.channel);
-        vm.kiwiwiPlayer.add(elements);
-        vm.kiwiwiPlayer.play();
-    } else {
-        await vm.waitForConnect();
-        vm.kiwiwiPlayer.add(elements);
-    }
+    await addElements(vm, guild, voiceChannel, elements);
 
     await interaction.editReply(
         confirmEmbed(`음악 ${elements.length}개를 대기열에 추가했어요.`)

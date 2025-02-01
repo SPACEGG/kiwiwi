@@ -1,13 +1,26 @@
-import yts from 'yt-search';
+import youtubeDl from 'youtube-dl-exec';
 import defaultAudio from './defaultAudio.js';
 
-export default async (keyword) => {
-    const result = (await yts(keyword)).videos[0];
+const getInfo = (query) =>
+    youtubeDl(`ytsearch:${query}`, {
+        dumpSingleJson: true,
+        skipDownload: true,
+        noWarnings: true,
+        preferFreeFormats: true,
+        noCheckCertificates: true,
+        flatPlaylist: true,
+    });
+
+export default async (query) => {
+    const rawInfo = await getInfo(query);
+
+    const entry = rawInfo.entries[0];
+
     return {
-        link: result.url,
-        audio: () => defaultAudio(result.url),
-        title: result.title,
-        thumbnail: result.thumbnail,
-        duration: result.duration.seconds,
+        link: entry.url,
+        audio: () => defaultAudio(entry.url),
+        title: entry.title,
+        thumbnail: entry.thumbnails[0].url,
+        duration: entry.duration,
     };
 };

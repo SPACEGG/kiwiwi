@@ -18,6 +18,6 @@ export default async (link) => {
         audio: () => defaultAudio(link),
         title: rawInfo.title,
         thumbnail: rawInfo.thumbnails.find((i) => i.id === 'original').url,
-        duration: Math.round(rawInfo.duration),
+        duration: rawInfo.duration,
     };
 };

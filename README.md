@@ -2,7 +2,7 @@
 
 | 가정용 디스코드 음악 봇 - kiwiwi 사용설명서
 
-![KiwiwiPlayer](https://i.imgur.com/VSsW6ps.png)
+![KiwiwiPlayer](https://i.imgur.com/Ceb5rFx.png)
 
 ---
 
@@ -12,6 +12,11 @@
 -   텍스트 기반 뮤직 플레이어 UI
 -   유튜브 음악 검색
 -   kiwiwi는 가정용 봇이기 때문에 누가 신청한 음악이든지 아무나 skip/remove 할 수 있어요.
+-   사용 가능한 url 타입:
+    -   youtube
+    -   soundcloud
+    -   spotify
+    -   bandcamp
 
 ## Requirements
 
@@ -21,10 +26,12 @@
 ## Setup
 
 1. 리포지토리 폴더로 작업영역을 이동하세요.
-2. `.env.tmp` 파일의 빈 부분을 채우세요. (dev는 선택)
+2. `.env.tmp` 파일의 빈 부분을 채우세요.
     - DISCORD_TOKEN: 봇 토큰
     - CLIENT_ID: OAuth2 클라이언트 토큰
     - DATABASE\_어쩌구: 하고싶은대로 하세요. (최소한 PASSWORD라도 바꾸기)
+    - EMOJI\_어쩌구: 서버 커스텀 이모지 id를 적용할 수 있어요 (<> 포함).
+    - DEV\_어쩌구: 개발용 환경변수라 비워둬도 상관없어요.
 3. `.env.tmp` 파일을 `.env` 으로 이름을 변경하세요.
 4. docker compose를 실행하세요.
     - `docker-compose up -d`

@@ -1,5 +1,5 @@
 import { Events } from 'discord.js';
-import { errorEmbed } from '#src/embeds.js';
+import { errorEmbed, warningEmbed } from '#src/embeds.js';
 import { checkKiwiwiButton } from '#src/utils.js';
 import config from '#src/config.js';
 import logger from '#src/logger.js';
@@ -17,7 +17,7 @@ export const execute = async (interaction) => {
         !interaction.member.voice.channel ||
         interaction.member.guild.id !== interaction.guild.id
     ) {
-        await interaction.reply(errorEmbed('음성 채널에 먼저 참가해주세요'));
+        await interaction.reply(warningEmbed('음성 채널에 먼저 참가해주세요'));
         setTimeout(() => {
             interaction.deleteReply();
         }, config.autoDeleteTimeout);
