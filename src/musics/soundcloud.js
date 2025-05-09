@@ -17,7 +17,7 @@ export default async (link) => {
         link,
         audio: () => defaultAudio(link),
         title: rawInfo.title,
-        thumbnail: rawInfo.thumbnails.find((i) => i.id === 'original').url,
+        thumbnail: rawInfo.thumbnails[0].url,
         duration: rawInfo.duration,
     };
 };

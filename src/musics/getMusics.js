@@ -149,13 +149,16 @@ const music = async (keyword, userId, channelId) => {
         // MUSIC_INPUT_TYPE.KEYWORD
         default: {
             const info = await youtubeSearch(keyword);
-            return [
-                {
-                    ...info,
-                    userId,
-                    channelId,
-                },
-            ];
+
+            return info
+                ? [
+                      {
+                          ...info,
+                          userId,
+                          channelId,
+                      },
+                  ]
+                : undefined;
         }
     }
 };

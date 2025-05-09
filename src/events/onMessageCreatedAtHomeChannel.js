@@ -10,7 +10,7 @@ export const name = Events.MessageCreate;
 export const execute = async (message) => {
     const guild = message.guild;
     const textChannel = message.channel;
-    const voiceChannel = message.member.voice.channel;
+    const voiceChannel = message.member?.voice.channel;
     let vm = getVoiceManager(guild);
 
     // check if message is sent at home channel
@@ -50,6 +50,8 @@ ${config.name}가 <#${textChannel.id}>의 **메시지 관리 권한**을 가질 
 
     try {
         elements = await getMusics(keyword, message);
+        elements = elements.filter((el) => el !== undefined);
+
         // connect or add
         await addElements(vm, guild, voiceChannel, elements);
     } catch (e) {

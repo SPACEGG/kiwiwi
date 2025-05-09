@@ -16,11 +16,13 @@ export default async (query) => {
 
     const entry = rawInfo.entries[0];
 
-    return {
-        link: entry.url,
-        audio: () => defaultAudio(entry.url),
-        title: entry.title,
-        thumbnail: entry.thumbnails[0].url,
-        duration: entry.duration,
-    };
+    return entry
+        ? {
+              link: entry.url,
+              audio: () => defaultAudio(entry.url),
+              title: entry.title,
+              thumbnail: entry.thumbnails[0].url,
+              duration: entry.duration,
+          }
+        : undefined;
 };

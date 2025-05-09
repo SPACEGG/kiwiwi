@@ -36,7 +36,7 @@ for (const file of commandFiles) {
 
 export { commandCollections };
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10', timeout: 15_000 }).setToken(token);
 try {
     logger.info(`Started refreshing ${commands.length} application (/) commands.`);
     const data = await rest.put(Routes.applicationCommands(clientId), {

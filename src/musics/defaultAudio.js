@@ -1,3 +1,4 @@
+import path from 'path';
 import logger from '#src/logger.js';
 import youtubeDl from 'youtube-dl-exec';
 
@@ -11,10 +12,26 @@ export default async (link) => {
             output: '-',
             abortOnError: true,
             noCacheDir: true,
+            noPart: true,
+            cookies: path.resolve('./cookies.txt'),
         });
+
+        // eslint-disable-next-line no-unused-vars
+        // stream.stdout.on('data', (_) => {});
+
+        // stream.stdout.on('error', (e) => {
+        //     logger.warn(`defaultAudioError(${link}): ${e.message}`);
+        //     rej(e);
+        // });
+
         stream.catch((e) => {
-            logger.warn(`defaultAudioError(${link}): ${e}`);
+            if (e.stderr) {
+                logger.warn(`yt-dlp stderr: ${e.stderr.substr(0, 500)}`);
+            } else {
+                logger.warn(`defaultAudioError: ${e.shortMessage || e.message}`);
+            }
         });
+
         res(stream.stdout);
     });
 };

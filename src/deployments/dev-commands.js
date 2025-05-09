@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
     clientId = process.env.CLIENT_ID;
 }
 
-const guildId = process.env.DEV_GUILD_ID;
+// const guildId = process.env.DEV_GUILD_ID;
 
 const commandCollections = new Collection();
 const commands = [];
@@ -38,10 +38,10 @@ for (const file of commandFiles) {
 
 export { commandCollections as devCommandCollections };
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10', timeout: 15_000 }).setToken(token);
 try {
     logger.info(`Started refreshing ${commands.length} application (/) dev commands.`);
-    const data = await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
+    const data = await rest.put(Routes.applicationCommands(clientId), {
         body: commands,
     });
 
