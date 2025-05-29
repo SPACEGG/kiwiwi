@@ -20,7 +20,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('대기열 전체 목록을 보여줘요.');
 
 export const execute = async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
 
     // check if vm exsits
     const vm = getVoiceManager(interaction.guild);

@@ -11,7 +11,7 @@ export const errorEmbed = (message) => {
             },
         ],
         components: [],
-        ephemeral: true,
+        flags: 'Ephemeral',
         allowedMentions: {
             repliedUser: false,
         },
@@ -28,7 +28,7 @@ export const confirmEmbed = (message) => {
             },
         ],
         components: [],
-        ephemeral: true,
+        flags: 'Ephemeral',
         allowedMentions: {
             repliedUser: false,
         },
@@ -45,7 +45,7 @@ export const warningEmbed = (message) => {
             },
         ],
         components: [],
-        ephemeral: true,
+        flags: 'Ephemeral',
         allowedMentions: {
             repliedUser: false,
         },
@@ -74,7 +74,7 @@ export const checkEmbed = (message) => {
             },
         ],
         components: [actionRow],
-        ephemeral: true,
+        flags: 'Ephemeral',
         allowedMentions: {
             repliedUser: false,
         },

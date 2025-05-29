@@ -35,7 +35,7 @@ export const execute = async (interaction) => {
     let vm = getVoiceManager(guild);
 
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     setTimeout(() => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);

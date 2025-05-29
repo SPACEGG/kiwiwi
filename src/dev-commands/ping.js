@@ -6,7 +6,7 @@ const data = new SlashCommandBuilder()
     .setDescription('Replies with Pong!');
 const execute = async (interaction) => {
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     setTimeout(() => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);

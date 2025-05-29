@@ -5,7 +5,7 @@ function parseCookieExpirationValue(expires) {
     let newValue = expires;
 
     if (expires === -1) {
-        newValue = Date.now() + 365 * 86400 * 1000; // 1년 후
+        newValue = Date.now() + 365 * 86400 * 1000;
     }
 
     return Math.round(newValue);
@@ -30,7 +30,7 @@ function buildCookiesData(cookies) {
         .reduce((data, cookie) => {
             const newRow = [
                 parseCookieDomain(cookie.domain),
-                'TRUE', // 쿠키의 호환성 설정, 항상 TRUE
+                'TRUE',
                 cookie.path,
                 cookie.secure,
                 parseCookieExpirationValue(cookie.expires),

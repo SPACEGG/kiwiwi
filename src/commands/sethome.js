@@ -31,7 +31,7 @@ const data = new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 const execute = async (interaction) => {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
 
     // find prev record
     const prevHome = await db.home.findOne({ where: { guild_id: interaction.guildId } });

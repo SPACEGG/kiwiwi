@@ -17,7 +17,7 @@ export default async (link) => {
         });
 
         // eslint-disable-next-line no-unused-vars
-        // stream.stdout.on('data', (_) => {});
+        stream.stdout.on('data', (_) => {});
 
         // stream.stdout.on('error', (e) => {
         //     logger.warn(`defaultAudioError(${link}): ${e.message}`);

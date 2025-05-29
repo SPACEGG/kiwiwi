@@ -52,7 +52,7 @@ export const execute = async (interaction) => {
     let vm = getVoiceManager(guild);
 
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
 
     if (!(await checkHomeChannel(interaction))) return false;
 

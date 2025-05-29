@@ -66,6 +66,6 @@ export const data = new SlashCommandBuilder()
     .setDescription('키위위 도움말을 보여줘요.');
 export const execute = async (interaction) => {
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     await interaction.editReply({ embeds: [embed] });
 };
