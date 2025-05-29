@@ -1,3 +1,5 @@
+import path from 'path';
+import config from '#src/config.js';
 import youtubeDl from 'youtube-dl-exec';
 import defaultAudio from './defaultAudio.js';
 
@@ -16,6 +18,8 @@ const getInfo = (link) => {
         noWarnings: true,
         preferFreeFormats: true,
         noCheckCertificates: true,
+        cookies: path.resolve('./cookies.txt'),
+        extractorArgs: config.extractorArgs,
     });
 };
 

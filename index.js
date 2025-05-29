@@ -3,7 +3,9 @@ import { Collection } from 'discord.js';
 import db from '#src/database.js';
 import client from '#src/client.js';
 import logger from '#src/logger.js';
+import config from '#src/config.js';
 import getCookies from '#src/cookies.js';
+import { extractorArgsWithPOT } from '#src/utils.js';
 
 import { commandCollections } from '#src/deployments/commands.js';
 // import { devCommandCollections } from '#src/deployments/dev-commands.js';
@@ -12,9 +14,17 @@ import '#src/deployments/events.js';
 // cookies
 try {
     await getCookies();
-    logger.info('Successfully obtained cookies.');
+    logger.info('Successfully generated cookies.');
 } catch (e) {
     logger.error(`CookiesError: ${e}`);
+}
+
+// PO Token
+try {
+    config.extractorArgs = await extractorArgsWithPOT();
+    logger.info('Successfully generated PO Token.');
+} catch (e) {
+    logger.error(`POTError: ${e}`);
 }
 
 // database
