@@ -1,8 +1,10 @@
 import path from 'path';
 import logger from '#src/logger.js';
 import youtubeDl from 'youtube-dl-exec';
+import { generate } from 'youtube-po-token-generator';
 
 export default async (link) => {
+    const extractorArgs = await extractorArgsWithPOT();
     return new Promise((res) => {
         const stream = youtubeDl.exec(link, {
             extractAudio: true,
@@ -14,6 +16,9 @@ export default async (link) => {
             noCacheDir: true,
             noPart: true,
             cookies: path.resolve('./cookies.txt'),
+            extractorArgs: extractorArgs,
+            // cookiesFromBrowser:
+            //     'chrome:~/.cache/puppeteer/chrome/linux-136.0.7103.94/chrome-linux64/chrome',
         });
 
         // eslint-disable-next-line no-unused-vars
@@ -34,4 +39,9 @@ export default async (link) => {
 
         res(stream.stdout);
     });
+};
+
+const extractorArgsWithPOT = async () => {
+    const poToken = (await generate()).poToken;
+    return `youtube:player-client=default,mweb;po_token=mweb.gvs+${poToken}`;
 };

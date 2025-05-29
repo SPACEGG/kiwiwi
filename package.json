@@ -39,6 +39,7 @@
         "spotify-url-info": "^3.2.18",
         "winston": "^3.13.1",
         "winston-daily-rotate-file": "^5.0.0",
-        "youtube-dl-exec": "^3.0.16"
+        "youtube-dl-exec": "^3.0.16",
+        "youtube-po-token-generator": "^0.4.0"
     }
 }
