@@ -15,9 +15,7 @@ export default async (link) => {
             noCacheDir: true,
             noPart: true,
             cookies: path.resolve('./cookies.txt'),
-            extractorArgs: config.extractorArgs,
-            // cookiesFromBrowser:
-            //     'chrome:~/.cache/puppeteer/chrome/linux-136.0.7103.94/chrome-linux64/chrome',
+            extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};format=dashy;po_token=mweb.gvs+${config.poToken}`,
         });
 
         // eslint-disable-next-line no-unused-vars

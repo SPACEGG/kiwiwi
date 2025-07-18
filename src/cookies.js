@@ -32,7 +32,7 @@ function buildCookiesData(cookies) {
                 parseCookieDomain(cookie.domain),
                 'TRUE',
                 cookie.path,
-                cookie.secure,
+                cookie.secure ? 'TRUE' : 'FALSE',
                 parseCookieExpirationValue(cookie.expires),
                 cookie.name,
                 parseCookieValue(cookie.value),
@@ -48,7 +48,7 @@ const getCookies = async () => {
     });
     const page = await browser.newPage();
 
-    await page.goto('https://www.youtube.com/');
+    await page.goto('https://www.youtube.com');
     const cookies = await browser.cookies();
 
     const netscapeCookies = buildCookiesData(cookies);

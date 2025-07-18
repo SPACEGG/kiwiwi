@@ -19,7 +19,7 @@ const getInfo = (link) => {
         preferFreeFormats: true,
         noCheckCertificates: true,
         cookies: path.resolve('./cookies.txt'),
-        extractorArgs: config.extractorArgs,
+        extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};po_token=mweb.gvs+${config.poToken}`,
     });
 };
 

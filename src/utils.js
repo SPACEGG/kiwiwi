@@ -54,7 +54,6 @@ export const checkKiwiwiButton = async (interaction) => {
     return true;
 };
 
-export const extractorArgsWithPOT = async () => {
-    const poToken = (await generate()).poToken;
-    return `youtube:player-client=default,mweb;po_token=mweb.gvs+${poToken}`;
+export const getPOT = async () => {
+    return (await generate()).poToken;
 };

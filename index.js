@@ -5,7 +5,7 @@ import client from '#src/client.js';
 import logger from '#src/logger.js';
 import config from '#src/config.js';
 import getCookies from '#src/cookies.js';
-import { extractorArgsWithPOT } from '#src/utils.js';
+import { getPOT } from '#src/utils.js';
 
 import { commandCollections } from '#src/deployments/commands.js';
 // import { devCommandCollections } from '#src/deployments/dev-commands.js';
@@ -21,7 +21,7 @@ try {
 
 // PO Token
 try {
-    config.extractorArgs = await extractorArgsWithPOT();
+    config.poToken = await getPOT();
     logger.info('Successfully generated PO Token.');
 } catch (e) {
     logger.error(`POTError: ${e}`);
