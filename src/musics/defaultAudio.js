@@ -1,7 +1,6 @@
 import path from 'path';
 import logger from '#src/logger.js';
 import youtubeDl from 'youtube-dl-exec';
-import config from '#src/config.js';
 
 export default async (link) => {
     return new Promise((res) => {
@@ -15,8 +14,9 @@ export default async (link) => {
             noCacheDir: true,
             noPart: true,
             cookies: path.resolve('./cookies.txt'),
-            extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};format=dashy;po_token=mweb.gvs+${config.poToken}`,
+            extractorArgs: `youtube:player-client=default,web;format=dashy`,
         });
+        // extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};format=dashy;po_token=mweb.gvs+${config.poToken}`,
 
         // eslint-disable-next-line no-unused-vars
         // stream.stdout.on('error', (e) => {

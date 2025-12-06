@@ -20,12 +20,12 @@ try {
 }
 
 // PO Token
-try {
-    config.poToken = await getPOT();
-    logger.info('Successfully generated PO Token.');
-} catch (e) {
-    logger.error(`POTError: ${e}`);
-}
+// try {
+//     config.poToken = await getPOT();
+//     logger.info('Successfully generated PO Token.');
+// } catch (e) {
+//     logger.error(`POTError: ${e}`);
+// }
 
 // database
 try {

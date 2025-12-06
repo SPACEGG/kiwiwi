@@ -55,13 +55,17 @@ ${config.name}가 <#${textChannel.id}>의 **메시지 관리 권한**을 가질 
         // connect or add
         await addElements(vm, guild, voiceChannel, elements);
     } catch (e) {
-        logger.error(`MusicKeywordError: ${e}`);
-        const repliedMsg = await message.reply(
-            errorEmbed(`유효하지 않은 입력이에요: \`${keyword}\``)
-        );
-        setTimeout(() => {
-            repliedMsg.delete();
-        }, config.autoDeleteTimeout);
+        try {
+            logger.error(`MusicKeywordError: ${e}`);
+            const repliedMsg = await message.reply(
+                errorEmbed(`유효하지 않은 입력이에요: \`${keyword}\``)
+            );
+            setTimeout(() => {
+                repliedMsg.delete();
+            }, config.autoDeleteTimeout);
+        } catch (messageError) {
+            logger.warn('message already deleted!');
+        }
         return;
     }
 

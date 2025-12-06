@@ -19,9 +19,10 @@ const getInfo = (link) => {
         preferFreeFormats: true,
         noCheckCertificates: true,
         cookies: path.resolve('./cookies.txt'),
-        extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};po_token=mweb.gvs+${config.poToken}`,
+        extractorArgs: `youtube:player-client=default,web;lang=${config.lang};format=dashy`,
     });
 };
+// extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};po_token=mweb.gvs+${config.poToken}`,
 
 export default async (link) => {
     const url = getVideoLink(link);
