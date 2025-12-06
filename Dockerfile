@@ -9,10 +9,9 @@ RUN apt-get upgrade -y
 RUN apt-get install -y wget build-essential libtool ffmpeg
 RUN apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1
 
-# dockerize
-ENV DOCKERIZE_VERSION v0.2.0
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+# wait-for-it
+COPY wait-for-it.sh /usr/local/bin/wait-for-it
+RUN chmod +x /usr/local/bin/wait-for-it
 
 # App directory
 WORKDIR /usr/src/app

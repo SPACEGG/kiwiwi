@@ -1,5 +1,5 @@
 echo "wait db server"
-dockerize -wait tcp://db:3306 -timeout 20s
+wait-for-it db:3306 -t 20 -- echo "db is up"
 
 echo "start node server"
 npm run build
