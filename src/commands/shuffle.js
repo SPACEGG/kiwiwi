@@ -14,7 +14,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('대기열 순서를 임의로 섞어요.');
 export const execute = async (interaction) => {
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     setTimeout(() => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);

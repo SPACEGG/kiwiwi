@@ -14,7 +14,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('이전 재생목록 음악을 재생해요.');
 export const execute = async (interaction) => {
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     setTimeout(() => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);

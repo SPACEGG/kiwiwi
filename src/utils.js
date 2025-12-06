@@ -1,5 +1,6 @@
 import db from '#src/database.js';
 import { warningEmbed } from '#src/embeds.js';
+import { generate } from 'youtube-po-token-generator';
 
 export const secToString = (seconds) => {
     const date = new Date(seconds * 1000);
@@ -51,4 +52,8 @@ export const checkKiwiwiButton = async (interaction) => {
     if (!home) return false;
     if (interaction.message.id !== home.kiwiwi_player_id) return false;
     return true;
+};
+
+export const getPOT = async () => {
+    return (await generate()).poToken;
 };

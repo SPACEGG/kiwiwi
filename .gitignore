@@ -143,3 +143,6 @@ db/
 
 # yt-dlp cache
 cache/
+
+# cookies
+cookies.txt

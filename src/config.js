@@ -25,4 +25,6 @@ export default {
         shuffle: process.env.EMOJI_SHUFFLE || '🔀',
         loop: process.env.EMOJI_LOOP || '🔁',
     },
+    lang: 'ko',
+    poToken: undefined,
 };

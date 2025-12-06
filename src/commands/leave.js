@@ -14,7 +14,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('대기열을 비우고 음성 채널에서 나가요.');
 export const execute = async (interaction) => {
     // deferReply
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 'Ephemeral' });
     setTimeout(() => {
         interaction.deleteReply();
     }, config.autoDeleteTimeout);
