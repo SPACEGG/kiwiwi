@@ -19,6 +19,7 @@ const getInfo = (link) => {
         preferFreeFormats: true,
         noCheckCertificates: true,
         cookies: path.resolve('./cookies.txt'),
+        jsRuntimes: "node",
         extractorArgs: `youtube:player-client=default,web;lang=${config.lang};format=dashy`,
     });
 };

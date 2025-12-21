@@ -13,6 +13,7 @@ export default async (link) => {
             abortOnError: true,
             noCacheDir: true,
             noPart: true,
+            jsRuntimes: "node",
             cookies: path.resolve('./cookies.txt'),
             extractorArgs: `youtube:player-client=default,web;format=dashy`,
         });
