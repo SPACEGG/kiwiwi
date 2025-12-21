@@ -7,4 +7,3 @@ docker-compose.yml
 node_modules/
 dist/
 bin/
-yarn.lock
