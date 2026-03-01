@@ -37,6 +37,7 @@ export class KiwiwiPlayer {
         this.playMode = KiwiwiPlayer.repeatMode.NONE;
         this.playstatus = KiwiwiPlayer.status.IDLE;
         this.vm = vm;
+        this.playlistDuration = 0;
 
         this.initPlayer();
     }
@@ -46,8 +47,10 @@ export class KiwiwiPlayer {
         this.player.on(AudioPlayerStatus.Idle, async () => {
             // check playmode
             if (this.playMode === KiwiwiPlayer.repeatMode.ONE) {
+                this.playlistDuration += this.playlist[0].duration;
                 this.playlist.unshift(this.playlist[0]);
             } else if (this.playMode === KiwiwiPlayer.repeatMode.ALL) {
+                this.playlistDuration += this.playlist[0].duration;
                 this.playlist.push(this.playlist[0]);
             }
 
@@ -92,6 +95,7 @@ export class KiwiwiPlayer {
 
     add(musics) {
         this.playlist.push(...musics);
+        musics.forEach((m) => (this.playlistDuration += m.duration));
 
         this.setPlaylistContent();
         this.setPlayerEmbed();
@@ -123,8 +127,10 @@ export class KiwiwiPlayer {
             return false;
         }
         // get next music resource
-        if (this.playlist[1]) {
-            this.playlist[1].resource = await this.getResource(this.playlist[1]);
+        if (this.playlist[1] && !this.playlist[1].resource) {
+            this.getResource(this.playlist[1]).then((res) => {
+                if (res) this.playlist[1].resource = res;
+            });
         }
 
         // update display - playlist
@@ -190,11 +196,16 @@ export class KiwiwiPlayer {
         if (this.playedlist.length > config.maxPlaylistBackup) {
             this.playedlist.pop();
         }
+
+        const skipped = this.playlist.slice(0, index);
+        skipped.forEach((m) => (this.playlistDuration -= m.duration));
+
         this.playlist = this.playlist.slice(index);
         this.play();
     }
 
     remove(index = this.playlist.length - 1) {
+        this.playlistDuration -= this.playlist[index].duration;
         this.playlist.splice(index, 1);
         this.setPlaylistContent();
         this.setPlayerEmbed();
@@ -205,12 +216,14 @@ export class KiwiwiPlayer {
         if (this.playedlist.length > config.maxPlaylistBackup) {
             this.playedlist.pop();
         }
+        this.playlistDuration -= this.playlist[0]?.duration ?? 0;
         this.playlist.shift();
     }
 
     async back() {
         if (this.playedlist.length === 0) return false;
         this.playlist.unshift(this.playedlist[0]);
+        this.playlistDuration += this.playedlist[0].duration;
         this.playedlist.shift();
 
         this.playlist[0].resource = await this.getResource(this.playlist[0]);
@@ -241,6 +254,7 @@ export class KiwiwiPlayer {
     clear() {
         this.playlist = [];
         this.playedlist = [];
+        this.playlistDuration = 0;
     }
 
     setPlaylistContent() {
@@ -259,13 +273,12 @@ export class KiwiwiPlayer {
     }
 
     setPlayerEmbed() {
-        const remainSec = this.playlist.reduce((acc, cur) => acc + cur.duration, 0);
         this.display.playerEmbeds = [
             basePlayerEmbed({
                 ...this.playlist[0],
                 isPlaying: this.playstatus === KiwiwiPlayer.status.PLAYING,
                 playlistLeft: this.playlist.length - 1,
-                remainSec: remainSec,
+                remainSec: this.playlistDuration,
                 playMode: this.playMode,
             }),
         ];
