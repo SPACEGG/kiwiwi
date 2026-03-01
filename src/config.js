@@ -26,5 +26,5 @@ export default {
         loop: process.env.EMOJI_LOOP || '🔁',
     },
     lang: 'ko',
-    poToken: undefined,
+    poToken: process.env.PO_TOKEN,
 };

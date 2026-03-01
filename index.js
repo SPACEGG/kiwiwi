@@ -3,7 +3,7 @@ import { Collection } from 'discord.js';
 import db from '#src/database.js';
 import client from '#src/client.js';
 import logger from '#src/logger.js';
-// import config from '#src/config.js';
+import config from '#src/config.js';
 // import getCookies from '#src/cookies.js';
 // import { getPOT } from '#src/utils.js';
 

@@ -16,7 +16,8 @@ export const execute = async (oldState, newState) => {
     const kiwiwiChannelId = vm.voiceChannel.id;
 
     if (oldChannelId === kiwiwiChannelId) {
-        if (oldUserCount === 1 && !vm.isCountdown) {
+        const remainingMembers = oldState.channel?.members.filter((m) => !m.user.bot).size ?? 0;
+        if (remainingMembers === 0 && !vm.isCountdown) {
             vm.startCountdown();
         }
     } else if (newChannelId === kiwiwiChannelId) {

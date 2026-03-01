@@ -1,28 +1,21 @@
 import youtubeDl from 'youtube-dl-exec';
-import defaultAudio from './defaultAudio.js';
+import youtube from './youtube.js';
 
-const getInfo = (query) =>
-    youtubeDl(`ytsearch:${query}`, {
+const getInfo = (query) => {
+    const args = {
         dumpSingleJson: true,
         skipDownload: true,
         noWarnings: true,
-        preferFreeFormats: true,
-        noCheckCertificates: true,
         flatPlaylist: true,
-    });
+    };
+
+    return youtubeDl(`ytsearch:${query}`, args);
+};
 
 export default async (query) => {
     const rawInfo = await getInfo(query);
 
     const entry = rawInfo.entries[0];
 
-    return entry
-        ? {
-              link: entry.url,
-              audio: () => defaultAudio(entry.url),
-              title: entry.title,
-              thumbnail: entry.thumbnails[0].url,
-              duration: entry.duration,
-          }
-        : undefined;
+    return entry ? await youtube(entry.url) : undefined;
 };

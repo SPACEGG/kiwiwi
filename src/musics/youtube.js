@@ -8,22 +8,20 @@ const getVideoLink = (url) => {
         /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = url.match(regex);
     const result = match ? match[1] : null;
-    return `https://www.youtube.com/watch?v=${result}`;
+    return result ? `https://www.youtube.com/watch?v=${result}` : url;
 };
 
 const getInfo = (link) => {
-    return youtubeDl(link, {
+    const args = {
         dumpSingleJson: true,
         skipDownload: true,
         noWarnings: true,
-        preferFreeFormats: true,
         noCheckCertificates: true,
         cookies: path.resolve('./cookies.txt'),
-        jsRuntimes: "node",
-        extractorArgs: `youtube:player-client=default,web;lang=${config.lang};format=dashy`,
-    });
+    };
+
+    return youtubeDl(link, args);
 };
-// extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};po_token=mweb.gvs+${config.poToken}`,
 
 export default async (link) => {
     const url = getVideoLink(link);
@@ -33,7 +31,7 @@ export default async (link) => {
         link,
         audio: () => defaultAudio(url),
         title: rawInfo.title,
-        thumbnail: rawInfo.thumbnails[0].url,
+        thumbnail: rawInfo.thumbnails ? rawInfo.thumbnails[0]?.url : '',
         duration: rawInfo.duration,
     };
 };

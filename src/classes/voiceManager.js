@@ -98,13 +98,17 @@ export class VoiceManager {
     }
 
     startCountdown() {
-        if (this.isCountdown) return;
+        if (this.isCountdown || !this.ready || !this.kiwiwiPlayer) return;
 
         this.isCountdown = true;
-        this.kiwiwiPlayer.pause();
-        this.countdownSchedule = setInterval(() => {
-            this.destroy();
-        }, config.vmCountdownTimeout);
+        try {
+            this.kiwiwiPlayer.pause();
+            this.countdownSchedule = setInterval(() => {
+                this.destroy();
+            }, config.vmCountdownTimeout);
+        } catch (e) {
+            this.isCountdown = false;
+        }
     }
 
     resetCountdown() {

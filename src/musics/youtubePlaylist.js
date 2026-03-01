@@ -1,15 +1,22 @@
+import path from 'path';
+import config from '#src/config.js';
 import youtubeDl from 'youtube-dl-exec';
 import defaultAudio from './defaultAudio.js';
 
-const getAlbumInfo = (link) =>
-    youtubeDl(link, {
+const getAlbumInfo = (link) => {
+    const args = {
         dumpSingleJson: true,
         skipDownload: true,
         flatPlaylist: true,
         noWarnings: true,
-        preferFreeFormats: true,
         noCheckCertificates: true,
-    });
+        cookies: path.resolve('./cookies.txt'),
+        jsRuntimes: 'node',
+        extractorArgs: `youtube:player-client=web_embedded;lang=${config.lang}`,
+    };
+
+    return youtubeDl(link, args);
+};
 
 export default async (link) => {
     const infoList = (await getAlbumInfo(link)).entries;

@@ -48,7 +48,7 @@ export class KiwiwiPlayer {
             if (this.playMode === KiwiwiPlayer.repeatMode.ONE) {
                 this.playlist.unshift(this.playlist[0]);
             } else if (this.playMode === KiwiwiPlayer.repeatMode.ALL) {
-                this.add(this.playlist[0]);
+                this.playlist.push(this.playlist[0]);
             }
 
             this.next();

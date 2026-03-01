@@ -1,33 +1,34 @@
 import path from 'path';
+import config from '#src/config.js';
 import logger from '#src/logger.js';
-import youtubeDl from 'youtube-dl-exec';
+import { create } from 'youtube-dl-exec';
+
+// Use system global yt-dlp binary
+const youtubeDl = create('/usr/local/bin/yt-dlp');
 
 export default async (link) => {
     return new Promise((res) => {
-        const stream = youtubeDl.exec(link, {
-            extractAudio: true,
+        const args = {
+            format: 'bestaudio',
             noCheckCertificates: true,
-            audioFormat: 'best',
-            audioQuality: 0,
             output: '-',
             abortOnError: true,
             noCacheDir: true,
             noPart: true,
-            jsRuntimes: "node",
+            jsRuntimes: 'deno',
             cookies: path.resolve('./cookies.txt'),
-            extractorArgs: `youtube:player-client=default,web;format=dashy`,
-        });
-        // extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang};format=dashy;po_token=mweb.gvs+${config.poToken}`,
+            extractorArgs: `youtube:player-client=web_embedded;lang=${config.lang}`,
+        };
 
-        // eslint-disable-next-line no-unused-vars
-        // stream.stdout.on('error', (e) => {
-        //     logger.warn(`defaultAudioError(${link}): ${e.message}`);
-        //     rej(e);
-        // });
+        if (config.poToken) {
+            args.extractorArgs += `;po_token=web.gvs+${config.poToken}`;
+        }
+
+        const stream = youtubeDl.exec(link, args);
 
         stream.catch((e) => {
             if (e.stderr) {
-                logger.warn(`yt-dlp stderr: ${e.stderr.substr(0, 500)}`);
+                logger.warn(`yt-dlp stderr: ${e.stderr.substr(0, 2000)}`);
             } else {
                 logger.warn(`defaultAudioError: ${e.shortMessage || e.message}`);
             }
