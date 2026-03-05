@@ -38,6 +38,7 @@ export class KiwiwiPlayer {
         this.playstatus = KiwiwiPlayer.status.IDLE;
         this.vm = vm;
         this.playlistDuration = 0;
+        this.playLock = false;
 
         this.initPlayer();
     }
@@ -106,31 +107,43 @@ export class KiwiwiPlayer {
     }
 
     async play() {
+        if (this.playLock) return;
+        this.playLock = true;
+
         const nowPlaying = this.playlist[0];
         if (!nowPlaying) {
             this.idle();
             this.vm.startCountdown();
+            this.playLock = false;
             return false;
         }
+
+        // Kill previous process if exists
+        if (this.resource?.playStream?.process) {
+            try {
+                this.resource.playStream.process.kill();
+            } catch (e) {
+                /* already dead */
+            }
+        }
+
         // get music resource
-        this.resource = nowPlaying.resource ?? (await this.getResource(nowPlaying));
+        this.resource = await this.getResource(nowPlaying);
+
         // check resource
         if (!this.resource) {
             this.player.emit('error', `Unavailable resource: ${nowPlaying.link}`);
+            this.playLock = false;
             return false;
         }
+
         // play resource
         try {
             this.player.play(this.resource);
         } catch {
             this.player.emit('error', `Resource play failed: ${nowPlaying.link}`);
+            this.playLock = false;
             return false;
-        }
-        // get next music resource
-        if (this.playlist[1] && !this.playlist[1].resource) {
-            this.getResource(this.playlist[1]).then((res) => {
-                if (res) this.playlist[1].resource = res;
-            });
         }
 
         // update display - playlist
@@ -153,9 +166,18 @@ export class KiwiwiPlayer {
         // set updateSchedule
         this.setSchedule();
         this.vm.resetCountdown();
+
+        this.playLock = false;
     }
 
     stop() {
+        if (this.resource?.playStream?.process) {
+            try {
+                this.resource.playStream.process.kill();
+            } catch (e) {
+                /* already dead */
+            }
+        }
         this.player.stop();
         this.display.status = KiwiwiDisplay.status.IDLE;
         this.resetSchedule();
