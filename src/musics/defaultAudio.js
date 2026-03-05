@@ -22,14 +22,14 @@ export default async (link) => {
         jsRuntimes: 'deno',
         cookies: path.resolve('./cookies.txt'),
         extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang}`,
-        paths: 'temp:/tmp',
     };
 
     if (config.poToken) {
         args.extractorArgs += `;po_token=mweb.gvs+${config.poToken}`;
     }
 
-    const child = youtubeDl.exec(link, args);
+    // Set cwd to /tmp to ensure all temporary fragment files are created there
+    const child = youtubeDl.exec(link, args, { cwd: '/tmp' });
 
     child.catch((e) => {
         // Filter out Broken pipe or Process killed errors
