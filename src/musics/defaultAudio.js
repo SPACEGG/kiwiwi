@@ -17,11 +17,11 @@ export default async (link) => {
             noPart: true,
             jsRuntimes: 'deno',
             cookies: path.resolve('./cookies.txt'),
-            extractorArgs: `youtube:player-client=web_embedded;lang=${config.lang}`,
+            extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang}`,
         };
 
         if (config.poToken) {
-            args.extractorArgs += `;po_token=web.gvs+${config.poToken}`;
+            args.extractorArgs += `;po_token=mweb.gvs+${config.poToken}`;
         }
 
         const stream = youtubeDl.exec(link, args);
