@@ -276,6 +276,7 @@ export class KiwiwiPlayer {
         this.display.playerEmbeds = [
             basePlayerEmbed({
                 ...this.playlist[0],
+                channelId: this.vm.voiceChannel.id,
                 isPlaying: this.playstatus === KiwiwiPlayer.status.PLAYING,
                 playlistLeft: this.playlist.length - 1,
                 remainSec: this.playlistDuration,
