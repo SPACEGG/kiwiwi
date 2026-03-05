@@ -1,8 +1,14 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, Message } from 'discord.js';
 import { secToString } from '#src/utils.js';
 import config from '#src/config.js';
 import logger from '#src/logger.js';
 
+/**
+ * Returns the formatted base status ASCII art content.
+ * @param {string} text - The status text to display.
+ * @param {string} status - The status emoji or icon.
+ * @returns {string} The ANSI formatted status string.
+ */
 export const baseStatusContent = (text, status) => {
     const space = text.length < 66 ? 37 : 40;
     return `┌────────────────────────────────┐ ${status}
@@ -15,6 +21,12 @@ export const baseStatusContent = (text, status) => {
 └${'─'.repeat(space)}┘`;
 };
 
+/**
+ * Returns a music progress bar string.
+ * @param {number} current - Current playback position in seconds.
+ * @param {number} length - Total duration in seconds.
+ * @returns {string} ANSI formatted progress bar.
+ */
 export const musicProgress = (current, length) => {
     const space = length < 3600 ? 37 : 40;
     const progressSteps = space < 40 ? 25 : 24;
@@ -29,6 +41,13 @@ export const musicProgress = (current, length) => {
     return result;
 };
 
+/**
+ * Returns the playlist content string.
+ * @param {string[]} prev - Array of previous track titles.
+ * @param {string} curr - Current track title.
+ * @param {string[]} next - Array of next track titles.
+ * @returns {string} Formatted playlist string.
+ */
 export const basePlaylistContent = (prev, curr, next) => {
     let sc = ` ═══════════════PLAYLIST═══════════════`;
     for (let i of prev) {
@@ -44,6 +63,20 @@ export const basePlaylistContent = (prev, curr, next) => {
     return sc;
 };
 
+/**
+ * Creates the player embed object.
+ * @param {Object} info - Player information.
+ * @param {boolean} info.isPlaying - Whether music is currently playing.
+ * @param {string} info.channelId - ID of the voice channel.
+ * @param {string} info.title - Track title.
+ * @param {string} info.link - Track URL.
+ * @param {string} info.userId - User ID of the requester.
+ * @param {number} info.playlistLeft - Number of tracks remaining in queue.
+ * @param {number} info.remainSec - Remaining duration in seconds.
+ * @param {string} info.playMode - Current repeat mode.
+ * @param {string} info.thumbnail - Track thumbnail URL.
+ * @returns {import('discord.js').APIEmbed} Discord embed data.
+ */
 export const basePlayerEmbed = (info) => {
     const playingText = info.isPlaying
         ? `${config.name}와 <#${info.channelId}>에서 함께 음악 들어요 🎵`
@@ -83,6 +116,11 @@ export const basePlayerEmbed = (info) => {
     };
 };
 
+/**
+ * Generates action row components with control buttons.
+ * @param {boolean} isPlaying - Current playback state.
+ * @returns {ActionRowBuilder<ButtonBuilder>[]} Array of action rows containing buttons.
+ */
 export const baseButtonComponents = (isPlaying) => {
     const back = new ButtonBuilder()
         .setCustomId('back')
@@ -121,23 +159,45 @@ export const baseButtonComponents = (isPlaying) => {
 
 // --------------------------------------------------
 
+/**
+ * Class representing the UI display for a guild.
+ */
 export class KiwiwiDisplay {
+    /**
+     * Display status configurations.
+     * @type {Object.<string, {emoji: string, text: string}>}
+     */
     static status = {
         IDLE: { emoji: '🥝', text: '  Waiting for music links...' },
         PLAYING: { emoji: '💚', text: '' },
         SLEEP: { emoji: '💤', text: '  kiwiwi is sleeping...' },
     };
 
+    /**
+     * Creates a KiwiwiDisplay.
+     * @param {TextChannel} ch - The text channel to send messages to.
+     * @param {Message} msg - The existing message to manage.
+     */
     constructor(ch, msg) {
+        /** @type {{emoji: string, text: string}} */
         this.status = KiwiwiDisplay.status.IDLE;
+        /** @type {TextChannel} */
         this.channel = ch;
+        /** @type {Message} */
         this.message = msg;
+        /** @type {string} */
         this.statusContent = baseStatusContent(this.status.text, this.status.emoji);
+        /** @type {string} */
         this.playlistContent = '';
+        /** @type {Object[]} */
         this.playerEmbeds = [];
+        /** @type {ActionRowBuilder<ButtonBuilder>[]} */
         this.buttonComponents = [];
     }
 
+    /**
+     * Resets the display data.
+     */
     clear() {
         this.statusContent = baseStatusContent(this.status.text, this.status.emoji);
         this.playerEmbeds = [];
@@ -145,6 +205,10 @@ export class KiwiwiDisplay {
         this.playlistContent = '';
     }
 
+    /**
+     * Initializes the display message in the channel.
+     * @returns {Promise<void>}
+     */
     async initMessage() {
         try {
             await this.message.delete();
@@ -163,6 +227,11 @@ export class KiwiwiDisplay {
         });
     }
 
+    /**
+     * Moves the display to a different text channel.
+     * @param {TextChannel} newChannel - The new channel to display in.
+     * @returns {Promise<void>}
+     */
     async moveChannel(newChannel) {
         try {
             await this.message.delete();
@@ -173,6 +242,10 @@ export class KiwiwiDisplay {
         await this.initMessage();
     }
 
+    /**
+     * Updates the existing display message.
+     * @returns {Promise<void>}
+     */
     async update() {
         try {
             await this.message.edit({
@@ -193,6 +266,11 @@ export class KiwiwiDisplay {
         }
     }
 
+    /**
+     * Sends a temporary message to the channel.
+     * @param {import('discord.js').BaseMessageOptions|string} msgContent - The message content to send.
+     * @returns {Promise<void>}
+     */
     async sendMessage(msgContent) {
         const msg = await this.channel.send(msgContent);
         setTimeout(() => {

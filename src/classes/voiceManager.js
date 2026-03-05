@@ -1,22 +1,43 @@
 import { once, EventEmitter } from 'events';
-import { joinVoiceChannel, VoiceConnectionStatus, entersState } from '@discordjs/voice';
+import { joinVoiceChannel, VoiceConnectionStatus, entersState, VoiceConnection } from '@discordjs/voice';
+import { VoiceChannel } from 'discord.js';
 import { KiwiwiPlayer } from '#src/classes/kiwiwiPlayer.js';
 import { getKiwiwiDisplay } from '#src/queue/displayQueue.js';
 import config from '#src/config.js';
 
+/**
+ * Class managing voice channel connections and the player lifecycle.
+ */
 export class VoiceManager {
+    /**
+     * Creates a VoiceManager.
+     * @param {VoiceChannel} voiceChannel - The voice channel to connect to.
+     */
     constructor(voiceChannel) {
+        /** @type {VoiceChannel} */
         this.voiceChannel = voiceChannel;
+        /** @type {VoiceConnection} */
         this.connection = null;
+        /** @type {boolean} */
         this.ready = false;
+        /** @type {KiwiwiPlayer} */
         this.kiwiwiPlayer = null;
+        /** @type {EventEmitter} */
         this.event = new EventEmitter();
+        /** @type {boolean} */
         this.connected = false;
+        /** @type {boolean} */
         this.destroyed = false;
+        /** @type {boolean} */
         this.isCountdown = false;
+        /** @type {NodeJS.Timeout} */
         this.countdownSchedule = null;
     }
 
+    /**
+     * Initializes the voice connection listeners.
+     * @returns {Promise<any[]>}
+     */
     initConnection() {
         this.connection.once(VoiceConnectionStatus.Ready, async () => {});
 
@@ -35,6 +56,10 @@ export class VoiceManager {
         return once(this.connection, VoiceConnectionStatus.Ready);
     }
 
+    /**
+     * Connects to the voice channel.
+     * @returns {Promise<void>}
+     */
     async connect() {
         this.connection = joinVoiceChannel({
             channelId: this.voiceChannel.id,
@@ -55,11 +80,20 @@ export class VoiceManager {
         });
     }
 
+    /**
+     * Waits until the connection is established.
+     * @returns {Promise<any[]>|void}
+     */
     async waitForConnect() {
         if (this.connected) return;
         return once(this.event, 'connected');
     }
 
+    /**
+     * Reconnects to a voice channel.
+     * @param {VoiceChannel} channel - The new voice channel to connect to.
+     * @returns {Promise<void>}
+     */
     async reconnect(channel) {
         this.voiceChannel = channel;
         this.connection = joinVoiceChannel({
@@ -81,6 +115,9 @@ export class VoiceManager {
         });
     }
 
+    /**
+     * Completely destroys the player and the connection.
+     */
     destroy() {
         this.kiwiwiPlayer.stop();
         this.kiwiwiPlayer.clear();
@@ -90,6 +127,9 @@ export class VoiceManager {
         this.connected = false;
     }
 
+    /**
+     * Closes the connection.
+     */
     close() {
         this.connection.destroy();
         this.resetCountdown();
@@ -97,6 +137,9 @@ export class VoiceManager {
         this.connected = false;
     }
 
+    /**
+     * Starts the idle countdown timer.
+     */
     startCountdown() {
         if (this.isCountdown || !this.ready || !this.kiwiwiPlayer) return;
 
@@ -111,6 +154,9 @@ export class VoiceManager {
         }
     }
 
+    /**
+     * Resets the idle countdown timer.
+     */
     resetCountdown() {
         if (!this.isCountdown) return;
 

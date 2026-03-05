@@ -6,6 +6,11 @@ import { create } from 'youtube-dl-exec';
 // Use system global yt-dlp binary
 const youtubeDl = create('/usr/local/bin/yt-dlp');
 
+/**
+ * Executes yt-dlp to get an audio stream for a given link.
+ * @param {string} link - The URL of the track to play.
+ * @returns {Promise<import('stream').Readable & {process: import('child_process').ChildProcess}>} The stdout stream with the attached child process.
+ */
 export default async (link) => {
     const args = {
         format: 'bestaudio',
@@ -17,6 +22,7 @@ export default async (link) => {
         jsRuntimes: 'deno',
         cookies: path.resolve('./cookies.txt'),
         extractorArgs: `youtube:player-client=default,mweb;lang=${config.lang}`,
+        paths: 'temp:/tmp',
     };
 
     if (config.poToken) {
@@ -43,6 +49,7 @@ export default async (link) => {
         }
     });
 
+    /** @type {import('stream').Readable & {process: import('child_process').ChildProcess}} */
     const stream = child.stdout;
     stream.process = child; // Attach process to stream for management
     return stream;

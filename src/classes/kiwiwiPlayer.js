@@ -2,7 +2,10 @@ import {
     createAudioPlayer,
     AudioPlayerStatus,
     createAudioResource,
+    AudioPlayer,
+    AudioResource,
 } from '@discordjs/voice';
+import { Guild } from 'discord.js';
 import logger from '#src/logger.js';
 import {
     KiwiwiDisplay,
@@ -15,34 +18,73 @@ import {
 import { errorEmbed } from '#src/embeds.js';
 import config from '#src/config.js';
 
+/**
+ * @typedef {Object} Music
+ * @property {string} link - The URL of the track.
+ * @property {function(): Promise<import('stream').Readable & {process: import('child_process').ChildProcess}>} audio - Function that returns the audio stream with its process.
+ * @property {string} title - Track title.
+ * @property {string} thumbnail - Track thumbnail URL.
+ * @property {number} duration - Track duration in seconds.
+ * @property {string} userId - ID of the user who added the track.
+ * @property {string} channelId - ID of the channel where the track was added.
+ * @property {AudioResource} [resource] - Pre-loaded audio resource.
+ */
+
+/**
+ * Class managing music playback and queue logic.
+ */
 export class KiwiwiPlayer {
+    /** @type {Object.<string, string>} */
     static repeatMode = {
         NONE: 'none',
         ONE: 'music',
         ALL: 'playlist',
     };
+    /** @type {Object.<string, string>} */
     static status = {
         IDLE: 'idle',
         PLAYING: 'playing',
         PAUSED: 'paused',
     };
+
+    /**
+     * Creates a KiwiwiPlayer.
+     * @param {Guild} guild - The Discord guild.
+     * @param {KiwiwiDisplay} display - The display manager instance.
+     * @param {import('./voiceManager.js').VoiceManager} vm - The VoiceManager instance.
+     */
     constructor(guild, display, vm) {
+        /** @type {AudioPlayer} */
         this.player = createAudioPlayer();
+        /** @type {Music[]} */
         this.playlist = [];
+        /** @type {Music[]} */
         this.playedlist = [];
+        /** @type {Guild} */
         this.guild = guild;
+        /** @type {KiwiwiDisplay} */
         this.display = display;
+        /** @type {AudioResource} */
         this.resource = undefined;
+        /** @type {AudioResource} */
         this.nextResource = undefined;
+        /** @type {string} */
         this.playMode = KiwiwiPlayer.repeatMode.NONE;
+        /** @type {string} */
         this.playstatus = KiwiwiPlayer.status.IDLE;
+        /** @type {import('./voiceManager.js').VoiceManager} */
         this.vm = vm;
+        /** @type {number} */
         this.playlistDuration = 0;
+        /** @type {boolean} */
         this.playLock = false;
 
         this.initPlayer();
     }
 
+    /**
+     * Initializes player event listeners.
+     */
     initPlayer() {
         // next play
         this.player.on(AudioPlayerStatus.Idle, async () => {
@@ -79,12 +121,21 @@ export class KiwiwiPlayer {
         });
     }
 
+    /**
+     * Reloads the player instance.
+     * @param {import('./voiceManager.js').VoiceManager} vm - The VoiceManager instance.
+     */
     reload(vm) {
         this.player = createAudioPlayer();
         this.vm = vm;
         this.initPlayer();
     }
 
+    /**
+     * Retrieves an audio resource for a track.
+     * @param {Music} music - The music object.
+     * @returns {Promise<AudioResource|boolean>} The audio resource or false on failure.
+     */
     async getResource(music) {
         try {
             const stream = await music.audio();
@@ -94,6 +145,10 @@ export class KiwiwiPlayer {
         }
     }
 
+    /**
+     * Adds tracks to the queue.
+     * @param {Music[]} musics - Array of music objects to add.
+     */
     add(musics) {
         this.playlist.push(...musics);
         musics.forEach((m) => (this.playlistDuration += m.duration));
@@ -106,6 +161,10 @@ export class KiwiwiPlayer {
         }
     }
 
+    /**
+     * Starts or resumes playback.
+     * @returns {Promise<boolean>}
+     */
     async play() {
         if (this.playLock) return;
         this.playLock = true;
@@ -127,7 +186,7 @@ export class KiwiwiPlayer {
             }
         }
 
-        // get music resource
+        // get music resource (Always fetch a fresh stream URL)
         this.resource = await this.getResource(nowPlaying);
 
         // check resource
@@ -170,6 +229,9 @@ export class KiwiwiPlayer {
         this.playLock = false;
     }
 
+    /**
+     * Stops playback and clears resources.
+     */
     stop() {
         if (this.resource?.playStream?.process) {
             try {
@@ -185,6 +247,9 @@ export class KiwiwiPlayer {
         this.display.update();
     }
 
+    /**
+     * Sets the player to idle state.
+     */
     idle() {
         this.playstatus = KiwiwiPlayer.status.IDLE;
         this.display.status = KiwiwiDisplay.status.SLEEP;
@@ -194,6 +259,9 @@ export class KiwiwiPlayer {
         this.display.update();
     }
 
+    /**
+     * Pauses playback.
+     */
     pause() {
         if (this.player.state.status === AudioPlayerStatus.Playing) {
             this.player.pause();
@@ -204,6 +272,9 @@ export class KiwiwiPlayer {
         }
     }
 
+    /**
+     * Resumes playback.
+     */
     resume() {
         if (this.player.state.status === AudioPlayerStatus.Paused) {
             this.player.unpause();
@@ -213,6 +284,10 @@ export class KiwiwiPlayer {
         }
     }
 
+    /**
+     * Skips tracks in the queue.
+     * @param {number} [index=1] - Number of tracks to skip.
+     */
     skip(index = 1) {
         this.playedlist.unshift(this.playlist[0]);
         if (this.playedlist.length > config.maxPlaylistBackup) {
@@ -226,6 +301,10 @@ export class KiwiwiPlayer {
         this.play();
     }
 
+    /**
+     * Removes a track from the queue.
+     * @param {number} [index=this.playlist.length - 1] - Index of the track to remove.
+     */
     remove(index = this.playlist.length - 1) {
         this.playlistDuration -= this.playlist[index].duration;
         this.playlist.splice(index, 1);
@@ -233,6 +312,9 @@ export class KiwiwiPlayer {
         this.setPlayerEmbed();
     }
 
+    /**
+     * Advances to the next track without starting playback.
+     */
     next() {
         this.playedlist.unshift(this.playlist[0]);
         if (this.playedlist.length > config.maxPlaylistBackup) {
@@ -242,6 +324,10 @@ export class KiwiwiPlayer {
         this.playlist.shift();
     }
 
+    /**
+     * Goes back to the previous track.
+     * @returns {Promise<boolean>}
+     */
     async back() {
         if (this.playedlist.length === 0) return false;
         this.playlist.unshift(this.playedlist[0]);
@@ -254,6 +340,9 @@ export class KiwiwiPlayer {
         return true;
     }
 
+    /**
+     * Shuffles the current queue.
+     */
     shuffle() {
         const first = this.playlist[0];
         this.playlist.shift();
@@ -267,18 +356,28 @@ export class KiwiwiPlayer {
         this.setPlayerEmbed();
     }
 
+    /**
+     * Sets the repeat mode.
+     * @param {string} mode - The repeat mode to set.
+     */
     repeat(mode) {
         this.playMode = mode;
 
         this.setPlayerEmbed();
     }
 
+    /**
+     * Clears the playlist and played history.
+     */
     clear() {
         this.playlist = [];
         this.playedlist = [];
         this.playlistDuration = 0;
     }
 
+    /**
+     * Updates the playlist text content for display.
+     */
     setPlaylistContent() {
         try {
             // playedlist*3 + playlist*10
@@ -294,6 +393,9 @@ export class KiwiwiPlayer {
         }
     }
 
+    /**
+     * Updates the player embed for display.
+     */
     setPlayerEmbed() {
         this.display.playerEmbeds = [
             basePlayerEmbed({
@@ -307,6 +409,9 @@ export class KiwiwiPlayer {
         ];
     }
 
+    /**
+     * Starts the periodic UI update schedule.
+     */
     setSchedule() {
         this.updateSchedule =
             this.updateSchedule ??
@@ -324,6 +429,9 @@ export class KiwiwiPlayer {
             }, config.scheduleDuration);
     }
 
+    /**
+     * Stops the periodic UI update schedule.
+     */
     resetSchedule() {
         clearInterval(this.updateSchedule);
         this.updateSchedule = null;
